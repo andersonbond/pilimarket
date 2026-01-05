@@ -202,6 +202,32 @@ Pilimarket/
 
 ---
 
+## Chip Economy
+
+### Chip Value Definition
+**1 Chip = 1 Philippine Peso (₱1.00)**
+
+This equivalence is used for:
+- Display purposes (showing chip values in peso format)
+- Payment processing calculations
+- Market volume and statistics display
+- User balance representation
+
+### Important Notes
+- Chips are **virtual, non-redeemable tokens** with **no monetary value**
+- The 1:1 ratio with Philippine Peso is for **reference purposes only**
+- Chips **cannot be converted to cash** or redeemed
+- All chip transactions are final and non-refundable
+- See [CHIP_ECONOMY.md](../CHIP_ECONOMY.md) for detailed documentation
+
+### Implementation
+- Backend constant: `CHIP_TO_PESO_RATIO = 1.0` in `app/config.py`
+- Database: Store chips as integers (number of chips)
+- Frontend: Display as `₱X,XXX` or `X,XXX chips (₱X,XXX)`
+- Payment: Charge ₱1.00 per chip purchased
+
+---
+
 ## Database Schema
 
 ### Core Tables

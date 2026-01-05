@@ -51,3 +51,9 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Chip Economy Constants
+# IMPORTANT: 1 Chip = 1 Philippine Peso (₱1.00)
+# This is for reference and display purposes only.
+# Chips are virtual, non-redeemable tokens with no monetary value.
+CHIP_TO_PESO_RATIO = 1.0  # 1 chip = ₱1.00
+

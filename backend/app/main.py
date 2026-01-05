@@ -4,6 +4,8 @@ FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.config import settings
 from app.database import engine, Base
@@ -44,6 +46,10 @@ app.include_router(forecasts.router, prefix="/api/v1", tags=["forecasts"])
 app.include_router(purchases.router, prefix="/api/v1/purchases", tags=["purchases"])
 app.include_router(leaderboard.router, prefix="/api/v1/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+
+# Serve uploaded files
+if os.path.exists("uploads"):
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.get("/")

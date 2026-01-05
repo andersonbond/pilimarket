@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonSearchbar, IonIcon, IonModal, IonContent } from '@ionic/react';
-import { person, statsChart, trophy, logOut, logIn, personAdd, moon, sunny, helpCircle, close, menu } from 'ionicons/icons';
+import { person, statsChart, trophy, logOut, logIn, personAdd, moon, sunny, helpCircle, close, menu, add, wallet } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -28,7 +28,7 @@ const Header: React.FC = () => {
           <IonTitle onClick={() => history.push('/')} className="cursor-pointer flex-shrink-0 mr-4">
             Pilimarket
           </IonTitle>
-          <div className="flex-1 max-w-2xl min-w-0">
+          <div className="flex">
             <IonSearchbar
               value={searchQuery}
               onIonInput={(e) => {
@@ -69,6 +69,11 @@ const Header: React.FC = () => {
           </IonButton>
           {isAuthenticated ? (
             <>
+              <IonButton onClick={() => history.push('/purchase')} className="button-secondary">
+                <IonIcon icon={wallet} slot="start" />
+                <span className="hidden lg:inline">₱{user?.chips?.toLocaleString() || '0'}</span>
+                <span className="lg:hidden">₱{user?.chips?.toLocaleString() || '0'}</span>
+              </IonButton>
               <IonButton onClick={() => history.push('/profile')} className="button-primary">
                 <IonIcon icon={person} slot="start" />
                 <span className="hidden lg:inline">{user?.display_name || 'Profile'}</span>
@@ -81,6 +86,12 @@ const Header: React.FC = () => {
                 <IonIcon icon={trophy} slot="start" />
                 <span className="hidden lg:inline">Leaderboard</span>
               </IonButton>
+              {user?.is_admin && (
+                <IonButton onClick={() => history.push('/admin/markets/create')} className="button-blue">
+                  <IonIcon icon={add} slot="start" />
+                  <span className="hidden lg:inline">Create Market</span>
+                </IonButton>
+              )}
               <IonButton onClick={logout} className="button-red">
                 <IonIcon icon={logOut} slot="start" />
                 <span className="hidden lg:inline">Logout</span>
@@ -147,6 +158,17 @@ const Header: React.FC = () => {
               <>
                 <IonButton
                   expand="block"
+                  onClick={() => {
+                    history.push('/purchase');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="button-secondary justify-start"
+                >
+                  <IonIcon icon={wallet} slot="start" />
+                  Buy Chips (₱{user?.chips?.toLocaleString() || '0'})
+                </IonButton>
+                <IonButton
+                  expand="block"
                   fill="clear"
                   onClick={() => {
                     history.push('/profile');
@@ -181,6 +203,20 @@ const Header: React.FC = () => {
                   <IonIcon icon={trophy} slot="start" />
                   Leaderboard
                 </IonButton>
+                {user?.is_admin && (
+                  <IonButton
+                    expand="block"
+                    fill="clear"
+                    onClick={() => {
+                      history.push('/admin/markets/create');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="justify-start text-left"
+                  >
+                    <IonIcon icon={add} slot="start" />
+                    Create Market
+                  </IonButton>
+                )}
                 <IonButton
                   expand="block"
                   fill="clear"

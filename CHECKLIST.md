@@ -76,63 +76,63 @@ Quick reference checklist for tracking development progress.
 
 ---
 
-## Phase 2: Chip Purchase System
+## Phase 2: Chip Purchase System (TEST MODE - Payment bypassed for testing)
 
 ### Backend
-- [ ] Create purchases table migration
-- [ ] Create Purchase model
-- [ ] Create purchase schemas
-- [ ] Set up Stripe SDK
-- [ ] Create checkout endpoint
-- [ ] Create webhook endpoint
-- [ ] Implement webhook signature verification
-- [ ] Implement chip credit logic
-- [ ] Add purchase history endpoint
-- [ ] Implement daily purchase limits
-- [ ] Add anti-fraud checks
-- [ ] Create legal pages content (TOS, Privacy, FAQ, Disclaimer)
+- [x] Create purchases table migration
+- [x] Create Purchase model
+- [x] Create purchase schemas
+- [ ] Set up GCash/PayMaya SDK (deferred - will implement later)
+- [x] Create checkout endpoint (TEST MODE - bypasses payment)
+- [ ] Create webhook endpoint (deferred - will implement with payment provider)
+- [ ] Implement webhook signature verification (deferred)
+- [x] Implement chip credit logic
+- [x] Add purchase history endpoint
+- [x] Implement daily purchase limits
+- [ ] Add anti-fraud checks (basic limits implemented)
+- [x] Create legal pages content (TOS, Privacy, FAQ, Disclaimer) - Already done in Phase 1
 
 ### Frontend
-- [ ] Create chip purchase page
-- [ ] Integrate Stripe payment form
-- [ ] Add non-redeemable disclaimer
-- [ ] Create purchase confirmation
-- [ ] Create purchase history page
-- [ ] Add chip balance to header
-- [ ] Create Terms of Service page
-- [ ] Create Privacy Policy page
-- [ ] Create FAQ page
-- [ ] Create Disclaimer page
+- [x] Create chip purchase page
+- [ ] Integrate GCash/PayMaya payment form (deferred - test mode active)
+- [x] Add non-redeemable disclaimer
+- [x] Create purchase confirmation
+- [x] Create purchase history page
+- [x] Add chip balance to header
+- [x] Create Terms of Service page - Already done in Phase 1
+- [x] Create Privacy Policy page - Already done in Phase 1
+- [x] Create FAQ page - Already done in Phase 1
+- [x] Create Disclaimer page - Already done in Phase 1
 
 ---
 
 ## Phase 3: Market System
 
 ### Backend
-- [ ] Create markets table migration
-- [ ] Create outcomes table migration
-- [ ] Create Market model
-- [ ] Create Outcome model
-- [ ] Create market schemas
-- [ ] Implement market list endpoint (with filters)
-- [ ] Implement market detail endpoint
-- [ ] Implement market creation endpoint (admin)
-- [ ] Implement market update endpoint (admin)
+- [x] Create markets table migration
+- [x] Create outcomes table migration
+- [x] Create Market model
+- [x] Create Outcome model
+- [x] Create market schemas
+- [x] Implement market list endpoint (with filters)
+- [x] Implement market detail endpoint
+- [x] Implement market creation endpoint (admin)
+- [x] Implement market update endpoint (admin)
 - [ ] Set up Redis caching for markets
 - [ ] Implement cache invalidation
-- [ ] Add admin authorization middleware
+- [x] Add admin authorization middleware (implemented in markets.py)
 - [ ] Create admin user seeding script
 
 ### Frontend
-- [ ] Create market list page
-- [ ] Create MarketCard component
-- [ ] Implement market filtering
-- [ ] Implement market search
-- [ ] Create market detail page
-- [ ] Display outcomes with consensus
-- [ ] Create admin market creation page
-- [ ] Add form validation
-- [ ] Add loading states
+- [x] Create market list page
+- [x] Create MarketCard component
+- [x] Implement market filtering
+- [x] Implement market search
+- [x] Create market detail page
+- [x] Display outcomes with consensus
+- [x] Create admin market creation page
+- [x] Add form validation
+- [x] Add loading states
 
 ---
 

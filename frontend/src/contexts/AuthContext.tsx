@@ -87,7 +87,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await api.post('/api/v1/auth/login', credentials);
       
       if (response.data.success) {
-        const { access_token, refresh_token, user: userData } = response.data.data;
+        const { tokens, user: userData } = response.data.data;
+        const { access_token, refresh_token } = tokens;
         
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
@@ -108,7 +109,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await api.post('/api/v1/auth/register', data);
       
       if (response.data.success) {
-        const { access_token, refresh_token, user: userData } = response.data.data;
+        const { tokens, user: userData } = response.data.data;
+        const { access_token, refresh_token } = tokens;
         
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);

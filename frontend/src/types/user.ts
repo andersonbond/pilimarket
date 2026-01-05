@@ -8,6 +8,7 @@ export interface User {
   reputation: number;
   badges: string[];
   role: 'user' | 'moderator' | 'admin' | 'superadmin';
+  is_admin: boolean;
   status: 'active' | 'suspended' | 'banned';
   created_at: string;
 }

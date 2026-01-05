@@ -15,6 +15,23 @@ from app.schemas.auth import (
     ForgotPasswordRequest,
     ResetPasswordRequest,
 )
+from app.schemas.market import (
+    OutcomeBase,
+    OutcomeCreate,
+    OutcomeResponse,
+    MarketBase,
+    MarketCreate,
+    MarketUpdate,
+    MarketResponse,
+    MarketDetailResponse,
+    MarketListResponse,
+)
+from app.schemas.purchase import (
+    PurchaseBase,
+    PurchaseCreate,
+    PurchaseResponse,
+    PurchaseListResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -29,4 +46,17 @@ __all__ = [
     "RefreshTokenRequest",
     "ForgotPasswordRequest",
     "ResetPasswordRequest",
+    "OutcomeBase",
+    "OutcomeCreate",
+    "OutcomeResponse",
+    "MarketBase",
+    "MarketCreate",
+    "MarketUpdate",
+    "MarketResponse",
+    "MarketDetailResponse",
+    "MarketListResponse",
+    "PurchaseBase",
+    "PurchaseCreate",
+    "PurchaseResponse",
+    "PurchaseListResponse",
 ]

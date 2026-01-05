@@ -31,6 +31,10 @@ import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Leaderboard from './pages/Leaderboard';
 import Markets from './pages/Markets';
+import MarketDetail from './pages/MarketDetail';
+import AdminCreateMarket from './pages/AdminCreateMarket';
+import Purchase from './pages/Purchase';
+import PurchaseHistory from './pages/PurchaseHistory';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ';
@@ -52,6 +56,10 @@ const App: React.FC = () => {
             <Route exact path="/reset-password/:token" component={ResetPassword} />
             <Route exact path="/leaderboard" component={Leaderboard} />
             <Route exact path="/markets" component={Markets} />
+            <Route exact path="/markets/:id" component={MarketDetail} />
+            <ProtectedRoute exact path="/admin/markets/create" component={AdminCreateMarket} />
+            <ProtectedRoute exact path="/purchase" component={Purchase} />
+            <ProtectedRoute exact path="/purchase/history" component={PurchaseHistory} />
             <Route exact path="/terms" component={TermsOfService} />
             <Route exact path="/privacy" component={PrivacyPolicy} />
             <Route exact path="/faq" component={FAQ} />

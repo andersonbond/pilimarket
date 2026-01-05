@@ -3,6 +3,12 @@
 ## Project Overview
 A Philippine prediction market platform where users purchase non-redeemable virtual chips to place forecasts on questions (markets). Focus on Filipino elections and topical markets. Inspired by Polymarket UI/UX.
 
+### Chip Economy
+- **1 Chip = 1 Philippine Peso (₱1.00)** - for reference and display purposes only
+- Chips are virtual, non-redeemable tokens
+- Chips have no monetary value and cannot be converted to cash
+- Used solely for prediction market participation and reputation building
+
 ## Technology Stack
 - **Frontend**: Ionic 8 + React, TailwindCSS
 - **Backend**: Python (FastAPI)

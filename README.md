@@ -17,6 +17,12 @@ Pilimarket is a forecasting platform inspired by Polymarket, designed specifical
 - 🔔 Notifications system
 - 🛡️ Admin panel for moderation
 
+### Chip Economy
+- **1 Chip = 1 Philippine Peso (₱1.00)**
+- Chips are virtual, non-redeemable tokens used for forecasting
+- Chips have no monetary value and cannot be converted to cash
+- Used solely for prediction market participation and reputation building
+
 ### Legal & Compliance
 - Chips are **non-redeemable** and have **no monetary value**
 - Markets are phrased as **predictions/forecasts**, not bets
@@ -61,6 +67,7 @@ Pilimarket/
 - **[PROJECT_PLAN.md](./PROJECT_PLAN.md)** - High-level project plan with 10 phases
 - **[MVP_BREAKDOWN.md](./MVP_BREAKDOWN.md)** - Detailed MVP breakdown with deliverables and acceptance criteria
 - **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** - Technical architecture, database schema, API design
+- **[CHIP_ECONOMY.md](./CHIP_ECONOMY.md)** - Chip economy documentation (1 Chip = ₱1.00)
 
 ## 🚀 Getting Started
 
@@ -289,9 +296,10 @@ UI/UX inspired by [Polymarket.com](https://polymarket.com/)
 
 ## ⚠️ Important Notes
 
+- **Chip Value**: 1 Chip = 1 Philippine Peso (₱1.00) - for reference and display purposes only
 - **Chips are non-redeemable** - clearly stated throughout the application
 - **No cash prizes** - leaderboards provide honorific prizes only
-- **Legal compliance** - TOS must state chips have no monetary value
+- **Legal compliance** - TOS must state chips have no monetary value and cannot be redeemed
 - **Market phrasing** - markets are predictions, not bets
 - **Election markets** - strict moderation and resolution rules
 

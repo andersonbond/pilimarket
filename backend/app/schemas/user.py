@@ -51,6 +51,7 @@ class UserResponse(UserBase):
     badges: List[str] = []
     is_active: bool
     is_verified: bool
+    is_admin: bool
     created_at: datetime
     updated_at: datetime
     last_login: Optional[datetime] = None

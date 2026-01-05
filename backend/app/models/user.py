@@ -20,10 +20,10 @@ class User(Base):
     bio = Column(Text, nullable=True)
     
     # Virtual chips (non-redeemable)
-    chips = Column(Integer, default=1000, nullable=False)  # Starting chips
+    chips = Column(Integer, default=0, nullable=False)  # Starting chips (users must purchase)
     
     # Reputation system
-    reputation = Column(Float, default=50.0, nullable=False)  # 0-100 scale
+    reputation = Column(Float, default=0.0, nullable=False)  # 0-100 scale
     rank_score = Column(Float, default=0.0, nullable=False)  # For leaderboard
     
     # Account status

@@ -350,9 +350,67 @@ ion-button.button-red:focus {
 
 ion-button.button-red:hover span,
 ion-button.button-red:focus span,
-ion-button.button-red:hover ion-icon,
-ion-button.button-red:focus ion-icon {
-  color: #ffffff !important;
+  ion-button.button-red:hover ion-icon,
+  ion-button.button-red:focus ion-icon {
+    color: #ffffff !important;
+  }
+
+/* Custom input and textarea padding for Ionic components */
+ion-input.px-4,
+ion-input.px-4.py-3 {
+  --padding-start: 1rem !important;
+  --padding-end: 1rem !important;
+}
+
+ion-input.py-3,
+ion-input.px-4.py-3 {
+  --padding-top: 0.75rem !important;
+  --padding-bottom: 0.75rem !important;
+}
+
+ion-textarea.px-4,
+ion-textarea.px-4.py-3 {
+  --padding-start: 1rem !important;
+  --padding-end: 1rem !important;
+}
+
+ion-textarea.py-3,
+ion-textarea.px-4.py-3 {
+  --padding-top: 0.75rem !important;
+  --padding-bottom: 0.75rem !important;
+}
+
+/* Also target native input elements inside shadow DOM */
+ion-input.px-4 input,
+ion-input.px-4 .native-input,
+ion-input.px-4.py-3 input,
+ion-input.px-4.py-3 .native-input {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+ion-input.py-3 input,
+ion-input.py-3 .native-input,
+ion-input.px-4.py-3 input,
+ion-input.px-4.py-3 .native-input {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+ion-textarea.px-4 textarea,
+ion-textarea.px-4 .native-textarea,
+ion-textarea.px-4.py-3 textarea,
+ion-textarea.px-4.py-3 .native-textarea {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+ion-textarea.py-3 textarea,
+ion-textarea.py-3 .native-textarea,
+ion-textarea.px-4.py-3 textarea,
+ion-textarea.px-4.py-3 .native-textarea {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
 }
 
 /* Target Ionic's internal button structure - ONLY on hover */

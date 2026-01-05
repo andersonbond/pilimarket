@@ -2,29 +2,32 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonCard, IonCardContent } from '@ionic/react';
 
+import { Market } from '../types/market';
+
 interface MarketCardProps {
-  market: {
-    id: string;
-    title: string;
-    category: string;
-    status: string;
-    outcomes: Array<{
-      name: string;
-      total_points: number;
-      percentage?: number;
-    }>;
-    total_volume?: number;
-  };
+  market: Market;
 }
 
 const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const history = useHistory();
+  // Get consensus from market or calculate from outcomes
+  const consensus = market.consensus || {};
   const yesOutcome = market.outcomes.find((o) => o.name.toLowerCase() === 'yes');
   const noOutcome = market.outcomes.find((o) => o.name.toLowerCase() === 'no');
   
-  const yesPercentage = yesOutcome?.percentage || 0;
-  const noPercentage = noOutcome?.percentage || 0;
-  const totalPoints = (yesOutcome?.total_points || 0) + (noOutcome?.total_points || 0);
+  // Use consensus if available, otherwise calculate from outcomes
+  let yesPercentage = 0;
+  let noPercentage = 0;
+  
+  if (Object.keys(consensus).length > 0) {
+    yesPercentage = consensus['Yes'] || consensus['yes'] || 0;
+    noPercentage = consensus['No'] || consensus['no'] || 0;
+  } else {
+    yesPercentage = yesOutcome?.percentage || 0;
+    noPercentage = noOutcome?.percentage || 0;
+  }
+  
+  const totalPoints = market.total_volume || (yesOutcome?.total_points || 0) + (noOutcome?.total_points || 0);
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -37,20 +40,12 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     return colors[category.toLowerCase()] || 'bg-gray-100 text-gray-700';
   };
 
-  // Generate placeholder image URL based on category
-  const getPlaceholderImage = (category: string) => {
-    const categoryLower = category.toLowerCase();
-    // Using placeholder.com service with category-specific images
-    const imageId = categoryLower === 'election' ? 400 : 
-                    categoryLower === 'politics' ? 401 :
-                    categoryLower === 'sports' ? 402 :
-                    categoryLower === 'entertainment' ? 403 :
-                    categoryLower === 'economy' ? 404 :
-                    categoryLower === 'weather' ? 405 :
-                    categoryLower === 'world' ? 406 :
-                    categoryLower === 'local' ? 407 :
-                    categoryLower === 'technology' ? 408 :
-                    categoryLower === 'culture' ? 409 : 400;
+  // Get image URL - use uploaded image if available, otherwise placeholder
+  const getImageUrl = () => {
+    if (market.image_url) {
+      return market.image_url;
+    }
+    // Generate placeholder image URL based on category
     return `https://picsum.photos/seed/${market.id}/400/200`;
   };
 
@@ -59,10 +54,10 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
       className="cursor-pointer hover:shadow-xl transition-shadow overflow-hidden bg-white dark:bg-gray-800"
       onClick={() => history.push(`/markets/${market.id}`)}
     >
-      {/* Placeholder Image */}
+      {/* Market Image */}
       <div className="w-full h-32 bg-gradient-to-br from-primary/20 to-secondary/20 relative overflow-hidden">
         <img
-          src={getPlaceholderImage(market.category)}
+          src={getImageUrl()}
           alt={market.title}
           className="w-full h-full object-cover"
           onError={(e) => {
