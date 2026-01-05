@@ -8,9 +8,13 @@ from fastapi.responses import JSONResponse
 from app.config import settings
 from app.database import engine, Base
 from app.api.v1 import auth, markets, forecasts, purchases, users, leaderboard, admin
+from app.middleware import RateLimitMiddleware
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Import models to register them with SQLAlchemy
+from app.models import User  # noqa
+
+# Note: Use Alembic migrations instead of create_all in production
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Pilimarket API",
@@ -28,6 +32,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate limiting middleware
+app.add_middleware(RateLimitMiddleware)
 
 # Include routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])

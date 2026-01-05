@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { IonSegment, IonSegmentButton, IonLabel, IonCheckbox, IonItem, IonLabel as IonItemLabel, IonButton, IonIcon } from '@ionic/react';
-import { filter } from 'ionicons/icons';
+import React from 'react';
+import { IonIcon } from '@ionic/react';
+import { swapVertical, eyeOff } from 'ionicons/icons';
 
 interface MarketFiltersProps {
   sortBy: string;
@@ -19,64 +19,70 @@ const MarketFilters: React.FC<MarketFiltersProps> = ({
   onHideSportsChange,
   onHidePoliticsChange,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const sortOptions = [
+    { value: 'volume', label: '24hr Volume' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'ending', label: 'Ending Soon' },
+  ];
 
   return (
-    <div className="mb-4">
-      {/* Filter Toggle Button */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center space-x-2">
-          <IonButton
-            fill="clear"
-            size="small"
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-gray-700 dark:text-gray-300"
-          >
-            <IonIcon icon={filter} slot="start" />
-            <span className="text-sm font-medium">Filters</span>
-          </IonButton>
-        </div>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
-          Sort by:
-        </div>
-      </div>
-
-      {/* Sort Options - Always Visible */}
-      <div className="mb-2">
-        <IonSegment value={sortBy} onIonChange={(e) => onSortChange(e.detail.value as string)}>
-          <IonSegmentButton value="volume">
-            <IonLabel>24hr Volume</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="newest">
-            <IonLabel>Newest</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="ending">
-            <IonLabel>Ending Soon</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-      </div>
-
-      {/* Filter Options - Toggleable */}
-      {isOpen && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-          <div className="space-y-2">
-            <IonItem lines="none">
-              <IonCheckbox
-                checked={hideSports}
-                onIonChange={(e) => onHideSportsChange(e.detail.checked)}
-              />
-              <IonItemLabel className="ml-2 text-gray-900 dark:text-white">Hide sports?</IonItemLabel>
-            </IonItem>
-            <IonItem lines="none">
-              <IonCheckbox
-                checked={hidePolitics}
-                onIonChange={(e) => onHidePoliticsChange(e.detail.checked)}
-              />
-              <IonItemLabel className="ml-2 text-gray-900 dark:text-white">Hide politics?</IonItemLabel>
-            </IonItem>
+    <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        {/* Sort Section */}
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <IonIcon icon={swapVertical} className="text-gray-500 dark:text-gray-400 text-lg" />
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sort by</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => onSortChange(option.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  sortBy === option.value
+                    ? 'bg-primary text-black shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Filters Section */}
+        <div className="flex-1 md:border-l md:border-gray-200 md:dark:border-gray-700 md:pl-4">
+          <div className="flex items-center gap-2 mb-2">
+            <IonIcon icon={eyeOff} className="text-gray-500 dark:text-gray-400 text-lg" />
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Hide categories</span>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={hideSports}
+                onChange={(e) => onHideSportsChange(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary focus:ring-2 bg-white dark:bg-gray-700 cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                Sports
+              </span>
+            </label>
+            <label className="flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={hidePolitics}
+                onChange={(e) => onHidePoliticsChange(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary focus:ring-2 bg-white dark:bg-gray-700 cursor-pointer"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                Politics
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

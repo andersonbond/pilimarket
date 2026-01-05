@@ -24,7 +24,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Desktop: Title and Search */}
-        <div slot="start" className="hidden md:flex items-center flex-1 min-w-0">
+        <div slot="start" className="hidden md:flex items-center">
           <IonTitle onClick={() => history.push('/')} className="cursor-pointer flex-shrink-0 mr-4">
             Pilimarket
           </IonTitle>

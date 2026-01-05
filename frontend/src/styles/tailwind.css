@@ -119,6 +119,84 @@
   --color-hover: #000000;
 }
 
+/* Hover state - maintain text color (prevent any color change) */
+/* Light mode: black text on yellow background */
+ion-button.button-primary:hover .button-native,
+ion-button.button-primary:hover .button-inner,
+ion-button.button-primary:hover button,
+ion-button.button-primary:focus .button-native,
+ion-button.button-primary:focus .button-inner,
+ion-button.button-primary:focus button {
+  color: #000000 !important;
+}
+
+ion-button.button-primary:hover span,
+ion-button.button-primary:hover ion-icon,
+ion-button.button-primary:hover .button-native span,
+ion-button.button-primary:hover .button-inner span,
+ion-button.button-primary:hover button span,
+ion-button.button-primary:focus span,
+ion-button.button-primary:focus ion-icon,
+ion-button.button-primary:focus .button-native span,
+ion-button.button-primary:focus .button-inner span,
+ion-button.button-primary:focus button span {
+  color: #000000 !important;
+}
+
+/* Dark mode: maintain current color (don't force black) */
+.dark ion-button.button-primary:hover .button-native,
+.dark ion-button.button-primary:hover .button-inner,
+.dark ion-button.button-primary:hover button,
+.dark ion-button.button-primary:focus .button-native,
+.dark ion-button.button-primary:focus .button-inner,
+.dark ion-button.button-primary:focus button {
+  color: inherit !important;
+}
+
+.dark ion-button.button-primary:hover span,
+.dark ion-button.button-primary:hover ion-icon,
+.dark ion-button.button-primary:hover .button-native span,
+.dark ion-button.button-primary:hover .button-inner span,
+.dark ion-button.button-primary:hover button span,
+.dark ion-button.button-primary:focus span,
+.dark ion-button.button-primary:focus ion-icon,
+.dark ion-button.button-primary:focus .button-native span,
+.dark ion-button.button-primary:focus .button-inner span,
+.dark ion-button.button-primary:focus button span {
+  color: inherit !important;
+}
+
+.button-primary:hover,
+.button-primary:focus {
+  color: #000000 !important;
+}
+
+.button-primary:hover ion-icon,
+.button-primary:focus ion-icon {
+  color: #000000 !important;
+}
+
+.button-primary:hover span,
+.button-primary:focus span {
+  color: #000000 !important;
+}
+
+/* Dark mode: don't force black text */
+.dark .button-primary:hover,
+.dark .button-primary:focus {
+  color: inherit !important;
+}
+
+.dark .button-primary:hover ion-icon,
+.dark .button-primary:focus ion-icon {
+  color: inherit !important;
+}
+
+.dark .button-primary:hover span,
+.dark .button-primary:focus span {
+  color: inherit !important;
+}
+
 .button-secondary {
   --background: #f18701;
   --background-activated: #c16c01;
@@ -126,6 +204,21 @@
   --color: #ffffff;
   --color-activated: #ffffff;
   --color-hover: #ffffff;
+}
+
+.button-secondary:hover,
+.button-secondary:focus {
+  color: #ffffff !important;
+}
+
+.button-secondary:hover ion-icon,
+.button-secondary:focus ion-icon {
+  color: #ffffff !important;
+}
+
+.button-secondary:hover span,
+.button-secondary:focus span {
+  color: #ffffff !important;
 }
 
 .button-blue {
@@ -137,6 +230,11 @@
   --color-hover: #ffffff;
 }
 
+.button-blue:hover,
+.button-blue:focus {
+  color: #ffffff !important;
+}
+
 .button-red {
   --background: #d00000;
   --background-activated: #b71c1c;
@@ -146,7 +244,219 @@
   --color-hover: #ffffff;
 }
 
+.button-red:hover,
+.button-red:focus {
+  color: #ffffff !important;
+}
+
+.button-red:hover ion-icon,
+.button-red:focus ion-icon {
+  color: #ffffff !important;
+}
+
+.button-red:hover span,
+.button-red:focus span {
+  color: #ffffff !important;
+}
+
 /* Theme toggle button */
 .theme-toggle {
   --color: var(--ion-text-color);
+}
+
+/* Ensure button text doesn't change color on hover */
+ion-button.button-primary:hover,
+ion-button.button-primary:focus {
+  --color: #000000 !important;
+  color: #000000 !important;
+}
+
+ion-button.button-primary:hover span,
+ion-button.button-primary:focus span,
+ion-button.button-primary:hover ion-icon,
+ion-button.button-primary:focus ion-icon {
+  color: #000000 !important;
+}
+
+/* Dark mode: maintain current color */
+.dark ion-button.button-primary:hover,
+.dark ion-button.button-primary:focus {
+  --color: inherit !important;
+  color: inherit !important;
+}
+
+.dark ion-button.button-primary:hover span,
+.dark ion-button.button-primary:focus span,
+.dark ion-button.button-primary:hover ion-icon,
+.dark ion-button.button-primary:focus ion-icon {
+  color: inherit !important;
+}
+
+/* More specific targeting for spans inside button structure */
+ion-button.button-primary:hover .button-native span,
+ion-button.button-primary:focus .button-native span,
+ion-button.button-primary:hover .button-inner span,
+ion-button.button-primary:focus .button-inner span,
+ion-button.button-primary:hover button span,
+ion-button.button-primary:focus button span,
+ion-button.button-primary:hover::part(native) span,
+ion-button.button-primary:focus::part(native) span {
+  color: #000000 !important;
+}
+
+/* Dark mode: maintain current color */
+.dark ion-button.button-primary:hover .button-native span,
+.dark ion-button.button-primary:focus .button-native span,
+.dark ion-button.button-primary:hover .button-inner span,
+.dark ion-button.button-primary:focus .button-inner span,
+.dark ion-button.button-primary:hover button span,
+.dark ion-button.button-primary:focus button span,
+.dark ion-button.button-primary:hover::part(native) span,
+.dark ion-button.button-primary:focus::part(native) span {
+  color: inherit !important;
+}
+
+ion-button.button-secondary:hover,
+ion-button.button-secondary:focus {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+ion-button.button-secondary:hover span,
+ion-button.button-secondary:focus span,
+ion-button.button-secondary:hover ion-icon,
+ion-button.button-secondary:focus ion-icon {
+  color: #ffffff !important;
+}
+
+ion-button.button-blue:hover,
+ion-button.button-blue:focus {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+ion-button.button-blue:hover span,
+ion-button.button-blue:focus span,
+ion-button.button-blue:hover ion-icon,
+ion-button.button-blue:focus ion-icon {
+  color: #ffffff !important;
+}
+
+ion-button.button-red:hover,
+ion-button.button-red:focus {
+  --color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+ion-button.button-red:hover span,
+ion-button.button-red:focus span,
+ion-button.button-red:hover ion-icon,
+ion-button.button-red:focus ion-icon {
+  color: #ffffff !important;
+}
+
+/* Target Ionic's internal button structure - ONLY on hover */
+ion-button.button-primary:hover::part(native),
+ion-button.button-primary:hover button,
+ion-button.button-primary:focus::part(native),
+ion-button.button-primary:focus button {
+  color: #000000 !important;
+}
+
+ion-button.button-primary:hover .button-native,
+ion-button.button-primary:focus .button-native {
+  color: #000000 !important;
+}
+
+ion-button.button-primary:hover .button-inner,
+ion-button.button-primary:focus .button-inner {
+  color: #000000 !important;
+}
+
+/* Dark mode: maintain current color */
+.dark ion-button.button-primary:hover::part(native),
+.dark ion-button.button-primary:hover button,
+.dark ion-button.button-primary:focus::part(native),
+.dark ion-button.button-primary:focus button {
+  color: inherit !important;
+}
+
+.dark ion-button.button-primary:hover .button-native,
+.dark ion-button.button-primary:focus .button-native {
+  color: inherit !important;
+}
+
+.dark ion-button.button-primary:hover .button-inner,
+.dark ion-button.button-primary:focus .button-inner {
+  color: inherit !important;
+}
+
+ion-button.button-secondary:hover::part(native),
+ion-button.button-secondary:hover button,
+ion-button.button-secondary:focus::part(native),
+ion-button.button-secondary:focus button {
+  color: #ffffff !important;
+}
+
+ion-button.button-secondary:hover .button-native,
+ion-button.button-secondary:focus .button-native {
+  color: #ffffff !important;
+}
+
+ion-button.button-secondary:hover .button-inner,
+ion-button.button-secondary:focus .button-inner {
+  color: #ffffff !important;
+}
+
+ion-button.button-red:hover::part(native),
+ion-button.button-red:hover button,
+ion-button.button-red:focus::part(native),
+ion-button.button-red:focus button {
+  color: #ffffff !important;
+}
+
+ion-button.button-red:hover .button-native,
+ion-button.button-red:focus .button-native {
+  color: #ffffff !important;
+}
+
+ion-button.button-red:hover .button-inner,
+ion-button.button-red:focus .button-inner {
+  color: #ffffff !important;
+}
+
+/* Force text color on specific child elements for button-primary (hover only) */
+ion-button.button-primary:hover .button-native,
+ion-button.button-primary:focus .button-native,
+ion-button.button-primary:hover .button-inner,
+ion-button.button-primary:focus .button-inner,
+ion-button.button-primary:hover .button-native *,
+ion-button.button-primary:focus .button-native *,
+ion-button.button-primary:hover .button-inner *,
+ion-button.button-primary:focus .button-inner * {
+  color: #000000 !important;
+}
+
+/* Dark mode: maintain current color */
+.dark ion-button.button-primary:hover .button-native,
+.dark ion-button.button-primary:focus .button-native,
+.dark ion-button.button-primary:hover .button-inner,
+.dark ion-button.button-primary:focus .button-inner,
+.dark ion-button.button-primary:hover .button-native *,
+.dark ion-button.button-primary:focus .button-native *,
+.dark ion-button.button-primary:hover .button-inner *,
+.dark ion-button.button-primary:focus .button-inner * {
+  color: inherit !important;
+}
+
+/* Force text color on specific child elements for button-secondary and button-red (hover only) */
+ion-button.button-secondary:hover .button-native,
+ion-button.button-secondary:focus .button-native,
+ion-button.button-secondary:hover .button-inner,
+ion-button.button-secondary:focus .button-inner,
+ion-button.button-red:hover .button-native,
+ion-button.button-red:focus .button-native,
+ion-button.button-red:hover .button-inner,
+ion-button.button-red:focus .button-inner {
+  color: #ffffff !important;
 }

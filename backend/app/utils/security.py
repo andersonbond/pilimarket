@@ -1,6 +1,7 @@
 """
 Security utilities
 """
+import secrets
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -49,4 +50,9 @@ def decode_token(token: str) -> dict:
         return payload
     except JWTError:
         return {}
+
+
+def generate_reset_token() -> str:
+    """Generate a secure password reset token"""
+    return secrets.token_urlsafe(32)
 

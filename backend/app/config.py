@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Database
-    DATABASE_URL: str = "postgresql://andersonbond@localhost/dev_Pilimarket"
+    DATABASE_URL: str = "postgresql://andersonbondoc@localhost/dev_pilimarket"
     
     # Redis
     REDIS_HOST: str = "localhost"
