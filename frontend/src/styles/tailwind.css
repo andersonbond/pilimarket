@@ -153,13 +153,13 @@ ion-button .button-native {
   border-radius: 8px;
 }
 
-/* Button color themes */
+/* Button color themes - lighter, softer colors */
 .button-primary {
-  --background: #f7b801;
-  --background-activated: #c59301;
-  --background-hover: #fcdb6f;
+  --background: #fcdb6f; /* primary-300 - lighter yellow */
+  --background-activated: #f7b801; /* primary-500 */
+  --background-hover: #fbcf3f; /* primary-400 */
   --color: #000000;
-  --color-activated: #ffffff;
+  --color-activated: #000000;
   --color-hover: #000000;
   --border-radius: 8px;
 }
@@ -243,34 +243,34 @@ ion-button.button-primary:focus button span {
 }
 
 .button-secondary {
-  --background: #f18701;
-  --background-activated: #c16c01;
-  --background-hover: #f9b76f;
-  --color: #ffffff;
-  --color-activated: #ffffff;
-  --color-hover: #ffffff;
+  --background: #f9b76f; /* secondary-300 - lighter orange */
+  --background-activated: #f18701; /* secondary-500 */
+  --background-hover: #f79f3f; /* secondary-400 */
+  --color: #000000;
+  --color-activated: #000000;
+  --color-hover: #000000;
   --border-radius: 8px;
 }
 
 .button-secondary:hover,
 .button-secondary:focus {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 .button-secondary:hover ion-icon,
 .button-secondary:focus ion-icon {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 .button-secondary:hover span,
 .button-secondary:focus span {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 .button-blue {
-  --background: #0d47a1;
-  --background-activated: #1565c0;
-  --background-hover: #1976d2;
+  --background: #42a5f5; /* blue-400 - lighter blue */
+  --background-activated: #1e88e5; /* blue-600 */
+  --background-hover: #64b5f6; /* blue-300 */
   --color: #ffffff;
   --color-activated: #ffffff;
   --color-hover: #ffffff;
@@ -366,22 +366,22 @@ ion-button.button-primary:focus::part(native) span {
 
 ion-button.button-secondary:hover,
 ion-button.button-secondary:focus {
-  --color: #ffffff !important;
-  color: #ffffff !important;
+  --color: #000000 !important;
+  color: #000000 !important;
 }
 
 ion-button.button-secondary:hover span,
 ion-button.button-secondary:focus span,
 ion-button.button-secondary:hover ion-icon,
 ion-button.button-secondary:focus ion-icon {
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 /* Ensure button-blue and button-red maintain white text and background in light mode */
 ion-button.button-blue {
-  --background: #0d47a1 !important;
-  --background-activated: #1565c0 !important;
-  --background-hover: #1976d2 !important;
+  --background: #42a5f5 !important; /* blue-400 - lighter */
+  --background-activated: #1e88e5 !important; /* blue-600 */
+  --background-hover: #64b5f6 !important; /* blue-300 */
   --color: #ffffff !important;
   --border-radius: 8px !important;
 }
@@ -667,6 +667,22 @@ ion-accordion div[slot="content"] {
   }
 }
 
+/* Override Ionic's default font-weight for market card titles */
+ion-card-content h3 {
+  font-weight: 700 !important;
+}
+
+/* Notification popover width override - force width using Ionic CSS variables */
+.notification-popover {
+  --width: 500px !important;
+  --min-width: 500px !important;
+}
+
+.notification-popover-content {
+  width: 500px !important;
+  min-width: 500px !important;
+}
+
 /* Force text color on specific child elements for button-primary (hover only) */
 ion-button.button-primary:hover .button-native,
 ion-button.button-primary:focus .button-native,
@@ -824,4 +840,20 @@ ion-accordion div[slot="content"] {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Override Ionic's default font-weight for market card titles */
+ion-card-content h3 {
+  font-weight: 700 !important;
+}
+
+/* Notification popover width override - force width using Ionic CSS variables */
+.notification-popover {
+  --width: 500px !important;
+  --min-width: 500px !important;
+}
+
+.notification-popover-content {
+  width: 500px !important;
+  min-width: 500px !important;
 }

@@ -280,7 +280,7 @@ const Purchase: React.FC = () => {
                         <span>🏆 Top Forecasters May Receive Prizes!</span>
                       </h3>
                       <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-relaxed">
-                        Pilimarket may award prizes to top-performing forecasters. Improve your forecasting skills, climb the leaderboard, and you could be eligible for exciting rewards!
+                        Pilimarket may award prizes to top-performing forecasters every end of the month. Improve your forecasting skills, climb the leaderboard, and you could be eligible for exciting rewards!
                       </p>
                     </div>
                   </div>

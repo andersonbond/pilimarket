@@ -83,7 +83,7 @@ const CategoriesBar: React.FC<CategoriesBarProps> = ({ selectedCategory = 'All',
                   onClick={() => onCategorySelect?.(category.name)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                     selectedCategory === category.name
-                      ? 'bg-primary text-black font-semibold'
+                      ? 'bg-primary-600 text-white font-semibold'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >

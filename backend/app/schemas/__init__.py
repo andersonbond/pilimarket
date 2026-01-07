@@ -46,6 +46,19 @@ from app.schemas.resolution import (
     ResolutionResponse,
     ResolutionDetailResponse,
 )
+from app.schemas.activity import (
+    ActivityBase,
+    ActivityCreate,
+    ActivityResponse,
+    ActivityDetailResponse,
+    ActivityListResponse,
+)
+from app.schemas.notification import (
+    NotificationBase,
+    NotificationCreate,
+    NotificationResponse,
+    NotificationListResponse,
+)
 
 __all__ = [
     "UserBase",
@@ -83,4 +96,13 @@ __all__ = [
     "ResolutionCreate",
     "ResolutionResponse",
     "ResolutionDetailResponse",
+    "ActivityBase",
+    "ActivityCreate",
+    "ActivityResponse",
+    "ActivityDetailResponse",
+    "ActivityListResponse",
+    "NotificationBase",
+    "NotificationCreate",
+    "NotificationResponse",
+    "NotificationListResponse",
 ]

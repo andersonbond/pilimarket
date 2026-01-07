@@ -9,6 +9,8 @@ export interface User {
   badges: string[];
   role: 'user' | 'moderator' | 'admin' | 'superadmin';
   is_admin: boolean;
+  is_banned?: boolean;
+  chips_frozen?: boolean;
   status: 'active' | 'suspended' | 'banned';
   created_at: string;
 }

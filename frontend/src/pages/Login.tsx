@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage, IonButton, IonInput, IonItem, IonLabel, IonIcon } from '@ionic/react';
 import { logIn, close } from 'ionicons/icons';
-import { useHistory, Link } from 'react-router-dom';
+import { useHistory, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
@@ -11,6 +11,13 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const history = useHistory();
+  const location = useLocation();
+
+  // Get return URL from query params
+  const getReturnUrl = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get('return') || '/';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +26,9 @@ const Login: React.FC = () => {
 
     try {
       await login({ email, password });
-      history.push('/');
+      // Redirect to return URL or home
+      const returnUrl = getReturnUrl();
+      history.push(returnUrl);
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {

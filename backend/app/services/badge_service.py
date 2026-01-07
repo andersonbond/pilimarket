@@ -196,6 +196,41 @@ def check_and_award_badges(db: Session, user_id: str) -> List[str]:
         # Store as JSON (SQLAlchemy handles JSON column automatically)
         user.badges = current_badges if current_badges else []
         db.commit()
+        
+        # Create notification for each newly awarded badge
+        from app.services.notification_service import create_notification
+        from app.services.activity_service import create_activity
+        
+        badge_names = {
+            "newbie": "Newbie",
+            "accurate": "Accurate Forecaster",
+            "veteran": "Veteran",
+            "perfect_week": "Perfect Week",
+        }
+        
+        for badge_id in newly_awarded:
+            # Get badge name
+            badge_name = badge_names.get(badge_id, badge_id.replace("_", " ").title())
+            if badge_id.startswith("specialist_"):
+                category = badge_id.replace("specialist_", "")
+                badge_name = f"{category.title()} Specialist"
+            
+            # Create notification
+            create_notification(
+                db,
+                user_id=user_id,
+                notification_type="badge_earned",
+                message=f"Congratulations! You earned the '{badge_name}' badge!",
+                metadata={"badge_id": badge_id, "badge_name": badge_name}  # Will be stored as meta_data
+            )
+            
+            # Create activity
+            create_activity(
+                db,
+                activity_type="badge_earned",
+                user_id=user_id,
+                metadata={"badge_id": badge_id, "badge_name": badge_name}  # Will be stored as meta_data
+            )
     
     return newly_awarded
 

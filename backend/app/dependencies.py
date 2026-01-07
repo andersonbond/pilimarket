@@ -73,6 +73,12 @@ def get_current_user(
             detail="User account is inactive",
         )
     
+    if user.is_banned:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is banned",
+        )
+    
     return user
 
 

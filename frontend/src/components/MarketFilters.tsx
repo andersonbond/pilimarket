@@ -38,7 +38,7 @@ const MarketFilters: React.FC<MarketFiltersProps> = ({
               onClick={() => onSortChange(option.value)}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
                 sortBy === option.value
-                  ? 'bg-primary text-black shadow-sm'
+                  ? 'bg-primary-600 text-white shadow-sm'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >

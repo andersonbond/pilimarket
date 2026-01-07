@@ -70,6 +70,13 @@ async def place_forecast(
             detail="Outcome not found or does not belong to this market",
         )
     
+    # Check if user's chips are frozen
+    if current_user.chips_frozen:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your chips are frozen. Please contact support.",
+        )
+    
     # Validate user has enough chips
     if current_user.chips < forecast_data.points:
         raise HTTPException(
@@ -155,6 +162,22 @@ async def place_forecast(
         db.refresh(forecast)
         db.refresh(current_user)
         db.refresh(outcome)
+        
+        # Create activity for forecast placement
+        from app.services.activity_service import create_activity
+        create_activity(
+            db,
+            activity_type="forecast_placed",
+            user_id=current_user.id,
+            market_id=market_id,
+            metadata={
+                "forecast_id": forecast_id,
+                "outcome_id": forecast_data.outcome_id,
+                "outcome_name": outcome.name,
+                "points": forecast_data.points,
+            }  # Will be stored as meta_data
+        )
+        db.commit()  # Commit activity
         
         return {
             "success": True,

@@ -9,7 +9,7 @@ import os
 
 from app.config import settings
 from app.database import engine, Base
-from app.api.v1 import auth, markets, forecasts, purchases, users, leaderboard, admin, resolutions
+from app.api.v1 import auth, markets, forecasts, purchases, users, leaderboard, admin, resolutions, notifications, activity
 from app.middleware import RateLimitMiddleware
 
 # Import models to register them with SQLAlchemy
@@ -46,6 +46,8 @@ app.include_router(forecasts.router, prefix="/api/v1", tags=["forecasts"])
 app.include_router(purchases.router, prefix="/api/v1/purchases", tags=["purchases"])
 app.include_router(resolutions.router, prefix="/api/v1", tags=["resolutions"])
 app.include_router(leaderboard.router, prefix="/api/v1/leaderboard", tags=["leaderboard"])
+app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
+app.include_router(activity.router, prefix="/api/v1/activity", tags=["activity"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 
 # Serve uploaded files

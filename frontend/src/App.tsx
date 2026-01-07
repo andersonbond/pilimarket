@@ -21,7 +21,9 @@ import '@ionic/react/css/display.css';
 
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -34,9 +36,16 @@ import Markets from './pages/Markets';
 import MarketDetail from './pages/MarketDetail';
 import AdminCreateMarket from './pages/AdminCreateMarket';
 import AdminResolveMarket from './pages/AdminResolveMarket';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUserManagement from './pages/AdminUserManagement';
+import AdminMarketManagement from './pages/AdminMarketManagement';
+import AdminPurchaseMonitoring from './pages/AdminPurchaseMonitoring';
+import AdminFlaggedItems from './pages/AdminFlaggedItems';
 import Purchase from './pages/Purchase';
 import PurchaseHistory from './pages/PurchaseHistory';
 import ForecastHistory from './pages/ForecastHistory';
+import Notifications from './pages/Notifications';
+import ActivityFeed from './pages/ActivityFeed';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import FAQ from './pages/FAQ';
@@ -49,7 +58,8 @@ const App: React.FC = () => {
     <IonApp>
       <ThemeProvider>
         <AuthProvider>
-          <IonReactRouter>
+          <NotificationProvider>
+            <IonReactRouter>
           <IonRouterOutlet>
             <Route exact path="/" component={Home} />
             <Route exact path="/login" component={Login} />
@@ -59,11 +69,18 @@ const App: React.FC = () => {
             <Route exact path="/leaderboard" component={Leaderboard} />
             <Route exact path="/markets" component={Markets} />
             <Route exact path="/markets/:id" component={MarketDetail} />
-            <ProtectedRoute exact path="/admin/markets/create" component={AdminCreateMarket} />
-            <ProtectedRoute exact path="/admin/markets/:id/resolve" component={AdminResolveMarket} />
+            <AdminProtectedRoute exact path="/admin" component={AdminDashboard} />
+            <AdminProtectedRoute exact path="/admin/users" component={AdminUserManagement} />
+            <AdminProtectedRoute exact path="/admin/markets" component={AdminMarketManagement} />
+            <AdminProtectedRoute exact path="/admin/purchases" component={AdminPurchaseMonitoring} />
+            <AdminProtectedRoute exact path="/admin/flagged" component={AdminFlaggedItems} />
+            <AdminProtectedRoute exact path="/admin/markets/create" component={AdminCreateMarket} />
+            <AdminProtectedRoute exact path="/admin/markets/:id/resolve" component={AdminResolveMarket} />
             <ProtectedRoute exact path="/purchase" component={Purchase} />
             <ProtectedRoute exact path="/purchase/history" component={PurchaseHistory} />
             <ProtectedRoute exact path="/forecasts" component={ForecastHistory} />
+            <ProtectedRoute exact path="/notifications" component={Notifications} />
+            <ProtectedRoute exact path="/activity" component={ActivityFeed} />
             <Route exact path="/terms" component={TermsOfService} />
             <Route exact path="/privacy" component={PrivacyPolicy} />
             <Route exact path="/faq" component={FAQ} />
@@ -72,6 +89,7 @@ const App: React.FC = () => {
             <Route render={() => <Redirect to="/" />} />
           </IonRouterOutlet>
         </IonReactRouter>
+          </NotificationProvider>
       </AuthProvider>
       </ThemeProvider>
     </IonApp>

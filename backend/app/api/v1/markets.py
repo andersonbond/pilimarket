@@ -257,6 +257,20 @@ async def create_market(
     db.commit()
     db.refresh(market)
     
+    # Create activity for market creation
+    from app.services.activity_service import create_activity
+    create_activity(
+        db,
+        activity_type="market_created",
+        user_id=current_user.id,
+        market_id=market.id,
+        metadata={
+            "market_title": market.title,
+            "category": market.category,
+        }  # Will be stored as meta_data
+    )
+    db.commit()  # Commit activity
+    
     # Return created market
     # Safely get end_date (in case migration hasn't been run yet)
     end_date = getattr(market, 'end_date', None)

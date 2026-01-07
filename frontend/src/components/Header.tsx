@@ -4,6 +4,7 @@ import { person, statsChart, trophy, logOut, logIn, personAdd, moon, sunny, help
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import NotificationBell from './NotificationBell';
 
 const Header: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -16,18 +17,20 @@ const Header: React.FC = () => {
   return (
     <IonHeader>
       <IonToolbar>
-        {/* Mobile: Title and Menu */}
+        {/* Mobile: Logo/Title and Menu */}
         <div slot="start" className="flex items-center md:hidden">
-          <IonTitle onClick={() => history.push('/')} className="cursor-pointer flex-shrink-0 text-lg">
-            Pilimarket
-          </IonTitle>
+          <div onClick={() => history.push('/')} className="cursor-pointer flex items-center gap-2">
+            <img src="/logo.png" alt="Pilimarket" className="h-8 w-auto rounded ml-2" />
+            <IonTitle className="flex-shrink-0 text-lg pl-0">Pilimarket</IonTitle>
+          </div>
         </div>
 
-        {/* Desktop: Title and Search */}
+        {/* Desktop: Logo/Title and Search */}
         <div slot="start" className="hidden md:flex items-center">
-          <IonTitle onClick={() => history.push('/')} className="cursor-pointer flex-shrink-0 mr-4">
-            Pilimarket
-          </IonTitle>
+          <div onClick={() => history.push('/')} className="cursor-pointer flex items-center gap-2 mr-4">
+            <img src="/logo.png" alt="Pilimarket" className="h-10 w-auto rounded ml-2" />
+            <IonTitle className="flex-shrink-0 pl-0">Pilimarket</IonTitle>
+          </div>
           <div className="flex">
             <IonSearchbar
               value={searchQuery}
@@ -45,7 +48,7 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile: Right side buttons (How it Works, theme and menu) */}
+        {/* Mobile: Right side buttons (How it Works, theme, notifications and menu) */}
         <IonButtons slot="end" className="md:hidden">
           <IonButton onClick={() => setIsHowItWorksOpen(true)} fill="clear" className="text-gray-700 dark:text-gray-300">
             <IonIcon icon={helpCircle} />
@@ -53,6 +56,7 @@ const Header: React.FC = () => {
           <IonButton onClick={toggleTheme} fill="clear" className="theme-toggle">
             <IonIcon icon={isDark ? sunny : moon} />
           </IonButton>
+          {isAuthenticated && <NotificationBell />}
           <IonButton onClick={() => setIsMobileMenuOpen(true)} fill="clear">
             <IonIcon icon={menu} />
           </IonButton>
@@ -69,6 +73,7 @@ const Header: React.FC = () => {
           </IonButton>
           {isAuthenticated ? (
             <>
+              <NotificationBell />
               <IonButton onClick={() => history.push('/purchase')} className="button-secondary">
                 <IonIcon icon={wallet} slot="start" />
                 <span className="hidden lg:inline">₱{user?.chips?.toLocaleString() || '0'}</span>
@@ -87,10 +92,16 @@ const Header: React.FC = () => {
                 <span className="hidden lg:inline">Leaderboard</span>
               </IonButton>
               {user?.is_admin && (
-                <IonButton onClick={() => history.push('/admin/markets/create')} className="button-blue">
-                  <IonIcon icon={add} slot="start" />
-                  <span className="hidden lg:inline">Create Market</span>
-                </IonButton>
+                <>
+                  <IonButton onClick={() => history.push('/admin')} className="button-secondary">
+                    <IonIcon icon={statsChart} slot="start" />
+                    <span className="hidden lg:inline">Admin</span>
+                  </IonButton>
+                  <IonButton onClick={() => history.push('/admin/markets/create')} className="button-blue">
+                    <IonIcon icon={add} slot="start" />
+                    <span className="hidden lg:inline">Create Market</span>
+                  </IonButton>
+                </>
               )}
               <IonButton onClick={logout} className="button-red">
                 <IonIcon icon={logOut} slot="start" />
@@ -204,18 +215,32 @@ const Header: React.FC = () => {
                   Leaderboard
                 </IonButton>
                 {user?.is_admin && (
-                  <IonButton
-                    expand="block"
-                    fill="clear"
-                    onClick={() => {
-                      history.push('/admin/markets/create');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="justify-start text-left"
-                  >
-                    <IonIcon icon={add} slot="start" />
-                    Create Market
-                  </IonButton>
+                  <>
+                    <IonButton
+                      expand="block"
+                      fill="clear"
+                      onClick={() => {
+                        history.push('/admin');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="justify-start text-left"
+                    >
+                      <IonIcon icon={statsChart} slot="start" />
+                      Admin Panel
+                    </IonButton>
+                    <IonButton
+                      expand="block"
+                      fill="clear"
+                      onClick={() => {
+                        history.push('/admin/markets/create');
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="justify-start text-left"
+                    >
+                      <IonIcon icon={add} slot="start" />
+                      Create Market
+                    </IonButton>
+                  </>
                 )}
                 <IonButton
                   expand="block"

@@ -271,28 +271,6 @@ See deployment guide in `docs/DEPLOYMENT.md` (to be created).
 
 [To be determined]
 
-## 🎨 Design Inspiration
-
-UI/UX inspired by [Polymarket.com](https://polymarket.com/)
-
-## 📞 Support
-
-[Contact information to be added]
-
-## 🗺️ Roadmap
-
-### MVP (Weeks 1-12)
-- Core features: Auth, Markets, Forecasts, Purchases
-- Reputation and badges
-- Leaderboards
-- Admin panel
-
-### Post-MVP
-- Real-time updates (WebSocket)
-- Mobile app (Ionic Capacitor)
-- Advanced analytics
-- Social features
-- Email notifications
 
 ## ⚠️ Important Notes
 
@@ -302,15 +280,3 @@ UI/UX inspired by [Polymarket.com](https://polymarket.com/)
 - **Legal compliance** - TOS must state chips have no monetary value and cannot be redeemed
 - **Market phrasing** - markets are predictions, not bets
 - **Election markets** - strict moderation and resolution rules
-
-## 🎯 Next Steps
-
-1. ✅ Review project plan and MVP breakdown
-2. ⏳ Set up Phase 0 (project structure)
-3. ⏳ Begin Phase 1 (authentication)
-4. ⏳ Iterate based on feedback
-
----
-
-**Ready to start?** Begin with Phase 0: Project Setup & Infrastructure!
-

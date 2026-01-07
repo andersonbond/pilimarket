@@ -164,6 +164,41 @@ async def resolve_market(
         # Score all forecasts
         scoring_results = score_forecasts(db, market_id, resolution_data.outcome_id)
         
+        # Create activity for market resolution
+        from app.services.activity_service import create_activity
+        create_activity(
+            db,
+            activity_type="market_resolved",
+            market_id=market_id,
+            metadata={
+                "winning_outcome": winning_outcome.name,
+                "resolved_by": current_user.id,
+            }  # Will be stored as meta_data
+        )
+        
+        # Get all users who forecasted on this market for notifications
+        user_ids_with_forecasts = db.query(Forecast.user_id).filter(
+            Forecast.market_id == market_id
+        ).distinct().all()
+        user_ids_list = [uid[0] for uid in user_ids_with_forecasts]
+        
+        # Create notifications in batch for all users who forecasted
+        if user_ids_list:
+            from app.services.notification_service import create_notifications_batch
+            winning_outcome_obj = db.query(Outcome).filter(Outcome.id == resolution_data.outcome_id).first()
+            create_notifications_batch(
+                db,
+                user_ids_list,
+                notification_type="market_resolved",
+            message=f"Market '{market.title}' has been resolved. Winning outcome: {winning_outcome_obj.name if winning_outcome_obj else 'Unknown'}",
+            metadata={
+                "market_id": market_id,
+                "market_title": market.title,
+                "outcome_id": resolution_data.outcome_id,
+                "outcome_name": winning_outcome_obj.name if winning_outcome_obj else "Unknown",
+            }  # This will be stored as meta_data in the model
+            )
+        
         # Recalculate reputation for all users who had forecasts on this market
         from app.services.reputation_service import calculate_reputation
         from app.models.reputation_history import ReputationHistory

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import CategoriesBar from '../components/CategoriesBar';
 import LeaderboardWidget from '../components/LeaderboardWidget';
+import ActivityWidget from '../components/ActivityWidget';
 import MarketCard from '../components/MarketCard';
 import MarketFilters from '../components/MarketFilters';
 import api from '../services/api';
@@ -149,10 +150,11 @@ const Home: React.FC = () => {
                 )}
               </div>
 
-              {/* Sidebar - Leaderboard */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-20">
+              {/* Sidebar - Leaderboard and Activity */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="sticky top-20 space-y-6">
                   <LeaderboardWidget />
+                  <ActivityWidget />
                 </div>
               </div>
             </div>

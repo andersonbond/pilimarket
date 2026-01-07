@@ -243,52 +243,52 @@ Quick reference checklist for tracking development progress.
 ## Phase 8: Activity Feed & Notifications
 
 ### Backend
-- [ ] Create activities table migration
-- [ ] Create notifications table migration
-- [ ] Create Activity model
-- [ ] Create Notification model
-- [ ] Implement activity feed endpoint
-- [ ] Implement global activity endpoint
-- [ ] Implement notifications endpoint
-- [ ] Implement mark as read endpoint
-- [ ] Create background job for sending notifications
-- [ ] Implement email notifications (optional)
+- [x] Create activities table migration
+- [x] Create notifications table migration
+- [x] Create Activity model
+- [x] Create Notification model
+- [x] Implement activity feed endpoint
+- [x] Implement global activity endpoint
+- [x] Implement notifications endpoint
+- [x] Implement mark as read endpoint
+- [ ] Create background job for sending notifications (defer to future phase)
+- [ ] Implement email notifications (defer to future phase)
 
 ### Frontend
-- [ ] Create activity feed page
-- [ ] Create activity cards
-- [ ] Create notification bell/icon
-- [ ] Create notification dropdown
-- [ ] Create notification list page
-- [ ] Create homepage activity widget
-- [ ] Create top forecasters widget
-- [ ] Add unread count badge
+- [x] Create activity feed page
+- [x] Create activity cards
+- [x] Create notification bell/icon
+- [x] Create notification dropdown
+- [x] Create notification list page
+- [x] Create homepage activity widget
+- [ ] Create top forecasters widget (deferred - leaderboard widget serves this purpose)
+- [x] Add unread count badge
 
 ---
 
 ## Phase 9: Admin Panel
 
 ### Backend
-- [ ] Create admin flagged items endpoint
-- [ ] Create market suspend endpoint
-- [ ] Create user ban endpoint
-- [ ] Create freeze chips endpoint
-- [ ] Create admin stats endpoint
-- [ ] Create user management endpoint
-- [ ] Create purchase monitoring endpoint
-- [ ] Implement auto-flagging logic
-- [ ] Create background job for suspicious activity detection
+- [x] Create admin flagged items endpoint
+- [x] Create market suspend endpoint
+- [x] Create user ban endpoint
+- [x] Create freeze chips endpoint
+- [x] Create admin stats endpoint
+- [x] Create user management endpoint
+- [x] Create purchase monitoring endpoint
+- [ ] Implement auto-flagging logic (defer to future phase)
+- [ ] Create background job for suspicious activity detection (defer to future phase)
 
 ### Frontend
-- [ ] Create admin dashboard
-- [ ] Create admin login/access
-- [ ] Create user management page
-- [ ] Create market management page
-- [ ] Create purchase monitoring page
-- [ ] Create flagged items queue
-- [ ] Create user action panel
-- [ ] Create market action panel
-- [ ] Add admin route protection
+- [x] Create admin dashboard
+- [x] Create admin login/access
+- [x] Create user management page
+- [x] Create market management page
+- [x] Create purchase monitoring page
+- [x] Create flagged items queue
+- [x] Create user action panel
+- [x] Create market action panel
+- [x] Add admin route protection
 
 ---
 
