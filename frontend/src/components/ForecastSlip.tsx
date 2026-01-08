@@ -11,7 +11,6 @@ interface ForecastSlipProps {
   userForecast?: any;
   onPlaceForecast: (forecast: ForecastCreate) => Promise<void>;
   onUpdateForecast?: (forecastId: string, forecast: ForecastCreate) => Promise<void>;
-  onCancelForecast?: (forecastId: string) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -20,7 +19,6 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
   userForecast,
   onPlaceForecast,
   onUpdateForecast,
-  onCancelForecast,
   isLoading = false,
 }) => {
   const { user } = useAuth();
@@ -30,7 +28,6 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
   );
   const [points, setPoints] = useState<number>(userForecast?.points || 100);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const selectedOutcome = market.outcomes.find((o) => o.id === selectedOutcomeId);
@@ -67,6 +64,11 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
     }
     if (!points || points < 1) {
       return 'Points must be at least 1';
+    }
+    
+    // If updating existing forecast, new amount must be greater than current
+    if (userForecast && points <= userForecast.points) {
+      return `You can only increase your forecast. Current: ₱${userForecast.points.toLocaleString()}. Minimum: ₱${(userForecast.points + 1).toLocaleString()}`;
     }
     
     // Check market limit (not user chips - that's handled separately)
@@ -124,16 +126,6 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
     }
   };
 
-  const handleCancel = async () => {
-    setShowCancelConfirm(false);
-    if (userForecast && onCancelForecast) {
-      try {
-        await onCancelForecast(userForecast.id);
-      } catch (err: any) {
-        setError(err.message || 'Failed to cancel forecast');
-      }
-    }
-  };
 
   if (!user) {
     return (
@@ -250,14 +242,18 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
                   type="number"
                   value={points}
                   onIonInput={(e) => setPoints(parseInt(e.detail.value!) || 0)}
-                  placeholder="Enter amount"
-                  min={1}
+                  placeholder={userForecast ? `Min: ₱${(userForecast.points + 1).toLocaleString()}` : "Enter amount"}
+                  min={userForecast ? userForecast.points + 1 : 1}
                   max={market.max_points_per_user}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
                 />
               </IonItem>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Min: ₱1 | Max: ₱{market.max_points_per_user.toLocaleString()} | Available: ₱{userChips.toLocaleString()}
+                {userForecast ? (
+                  <>Min: ₱{(userForecast.points + 1).toLocaleString()} | Max: ₱{market.max_points_per_user.toLocaleString()} | Available: ₱{userChips.toLocaleString()}</>
+                ) : (
+                  <>Min: ₱1 | Max: ₱{market.max_points_per_user.toLocaleString()} | Available: ₱{userChips.toLocaleString()}</>
+                )}
                 {userChips === 0 && (
                   <span className="text-primary font-semibold ml-1">(Purchase chips to continue)</span>
                 )}
@@ -278,7 +274,7 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
                   <IonButton
                     expand="block"
                     onClick={handleSubmit}
-                    disabled={isLoading || points === userForecast.points && selectedOutcomeId === userForecast.outcome_id}
+                    disabled={isLoading || (points <= userForecast.points && selectedOutcomeId === userForecast.outcome_id)}
                     className="button-primary flex-1"
                   >
                     {isLoading ? (
@@ -290,16 +286,6 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
                       'Update Forecast'
                     )}
                   </IonButton>
-                  {onCancelForecast && (
-                    <IonButton
-                      fill="outline"
-                      color="danger"
-                      onClick={() => setShowCancelConfirm(true)}
-                      disabled={isLoading}
-                    >
-                      Cancel
-                    </IonButton>
-                  )}
                 </>
               ) : (
                 <IonButton
@@ -347,7 +333,7 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
         header={userForecast ? 'Update Forecast?' : 'Confirm Purchase'}
         message={
           userForecast
-            ? `Update your forecast to ${points} chips on "${selectedOutcome?.name}"?`
+            ? `Increase your forecast from ₱${userForecast.points.toLocaleString()} to ₱${points.toLocaleString()} chips on "${selectedOutcome?.name}"? This will deduct an additional ₱${(points - userForecast.points).toLocaleString()} from your balance.`
             : `Buy ${points} chips on "${selectedOutcome?.name}"? This will deduct ₱${points} from your balance.`
         }
         buttons={[
@@ -362,24 +348,6 @@ const ForecastSlip: React.FC<ForecastSlipProps> = ({
         ]}
       />
 
-      {/* Cancel Confirmation Modal */}
-      <IonAlert
-        isOpen={showCancelConfirm}
-        onDidDismiss={() => setShowCancelConfirm(false)}
-        header="Cancel Forecast?"
-        message={`Cancel your forecast and refund ₱${userForecast?.points || 0} chips?`}
-        buttons={[
-          {
-            text: 'No',
-            role: 'cancel',
-          },
-          {
-            text: 'Yes, Cancel',
-            role: 'destructive',
-            handler: handleCancel,
-          },
-        ]}
-      />
     </>
   );
 };

@@ -7,6 +7,9 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        'dm-sans': ['DM Sans', 'sans-serif'],
+      },
       colors: {
         primary: {
           DEFAULT: '#f7b801',

@@ -18,7 +18,7 @@ from app.schemas.resolution import (
     ResolutionResponse,
     ResolutionDetailResponse,
 )
-from app.dependencies import get_current_user_optional, require_admin
+from app.dependencies import get_current_user_optional, require_market_moderator
 
 router = APIRouter()
 
@@ -48,24 +48,61 @@ def validate_evidence_urls(evidence_urls: list[str], market_category: str) -> No
 
 def score_forecasts(db: Session, market_id: str, winning_outcome_id: str) -> dict:
     """
-    Score all forecasts for a market:
+    Score all forecasts for a market and credit chips to winners:
     - Set status to 'won' for forecasts matching winning outcome
     - Set status to 'lost' for forecasts not matching winning outcome
-    Returns counts of won/lost forecasts
+    - Credit chips to winners: their bet + proportional share of (losing chips - house edge)
+    - House edge percentage is kept by the platform (for promotions/bonuses)
+    
+    Returns counts of won/lost forecasts and reward statistics
     """
+    from app.config import HOUSE_EDGE_PERCENTAGE
+    
     # Get all forecasts for this market
     forecasts = db.query(Forecast).filter(Forecast.market_id == market_id).all()
     
+    # Separate winning and losing forecasts
+    winning_forecasts = [f for f in forecasts if f.outcome_id == winning_outcome_id]
+    losing_forecasts = [f for f in forecasts if f.outcome_id != winning_outcome_id]
+    
+    # Calculate totals
+    total_winning_chips = sum(f.points for f in winning_forecasts)
+    total_losing_chips = sum(f.points for f in losing_forecasts)
+    
+    # Calculate house edge and chips to distribute
+    house_edge_chips = int(total_losing_chips * HOUSE_EDGE_PERCENTAGE)
+    chips_to_distribute = total_losing_chips - house_edge_chips
+    
+    # Update forecast statuses and credit chips to winners
     won_count = 0
     lost_count = 0
+    total_rewards = 0
     
-    for forecast in forecasts:
-        if forecast.outcome_id == winning_outcome_id:
-            forecast.status = "won"
-            won_count += 1
+    # Mark losers (chips already debited when forecast was placed)
+    for forecast in losing_forecasts:
+        forecast.status = "lost"
+        lost_count += 1
+    
+    # Mark winners and credit chips
+    for forecast in winning_forecasts:
+        forecast.status = "won"
+        won_count += 1
+        
+        # Calculate reward: bet + proportional share of (losing chips - house edge)
+        if total_winning_chips > 0:
+            share_ratio = forecast.points / total_winning_chips
+            bonus = share_ratio * chips_to_distribute
+            reward = forecast.points + bonus
         else:
-            forecast.status = "lost"
-            lost_count += 1
+            # Edge case: no winning chips (shouldn't happen, but handle gracefully)
+            reward = forecast.points
+        
+        # Credit chips to user
+        user = db.query(User).filter(User.id == forecast.user_id).first()
+        if user:
+            reward_int = int(reward)  # Round to integer
+            user.chips += reward_int
+            total_rewards += reward_int
     
     db.commit()
     
@@ -73,6 +110,10 @@ def score_forecasts(db: Session, market_id: str, winning_outcome_id: str) -> dic
         "won": won_count,
         "lost": lost_count,
         "total": len(forecasts),
+        "total_rewards": total_rewards,
+        "total_losing_chips": total_losing_chips,
+        "house_edge_chips": house_edge_chips,
+        "chips_distributed": chips_to_distribute,
     }
 
 
@@ -81,7 +122,7 @@ async def resolve_market(
     market_id: str,
     resolution_data: ResolutionCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_market_moderator),
 ):
     """
     Resolve a market (admin only)
@@ -164,6 +205,9 @@ async def resolve_market(
         # Score all forecasts
         scoring_results = score_forecasts(db, market_id, resolution_data.outcome_id)
         
+        # Get winning outcome name for activity
+        winning_outcome_obj = db.query(Outcome).filter(Outcome.id == resolution_data.outcome_id).first()
+        
         # Create activity for market resolution
         from app.services.activity_service import create_activity
         create_activity(
@@ -171,8 +215,9 @@ async def resolve_market(
             activity_type="market_resolved",
             market_id=market_id,
             metadata={
-                "winning_outcome": winning_outcome.name,
+                "winning_outcome": winning_outcome_obj.name if winning_outcome_obj else "Unknown",
                 "resolved_by": current_user.id,
+                "house_edge_chips": scoring_results.get("house_edge_chips", 0),
             }  # Will be stored as meta_data
         )
         
@@ -185,7 +230,6 @@ async def resolve_market(
         # Create notifications in batch for all users who forecasted
         if user_ids_list:
             from app.services.notification_service import create_notifications_batch
-            winning_outcome_obj = db.query(Outcome).filter(Outcome.id == resolution_data.outcome_id).first()
             create_notifications_batch(
                 db,
                 user_ids_list,
@@ -256,7 +300,7 @@ async def resolve_market(
                 },
                 "scoring": scoring_results,
             },
-            "message": f"Market resolved successfully. {scoring_results['won']} forecasts won, {scoring_results['lost']} forecasts lost.",
+            "message": f"Market resolved successfully. {scoring_results['won']} forecasts won, {scoring_results['lost']} forecasts lost. {scoring_results['total_rewards']} chips distributed to winners. {scoring_results['house_edge_chips']} chips retained as house edge.",
         }
     except Exception as e:
         db.rollback()

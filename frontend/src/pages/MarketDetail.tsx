@@ -186,40 +186,6 @@ const MarketDetail: React.FC = () => {
     }
   };
 
-  const handleCancelForecast = async (forecastId: string) => {
-    setIsPlacingForecast(true);
-    setError(null);
-    try {
-      const response = await api.delete(`/api/v1/forecasts/${forecastId}`);
-      
-      if (response.data.success) {
-        const { new_balance } = response.data.data;
-        
-        // Update user chips
-        if (user) {
-          updateUser({ chips: new_balance });
-        }
-        
-        // Remove forecast
-        setUserForecast(null);
-        
-        // Refresh market data
-        await fetchMarket();
-        
-        setToastMessage('Forecast cancelled. Chips refunded.');
-        setToastColor('success');
-        setShowToast(true);
-      }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.response?.data?.errors?.[0]?.message || 'Failed to cancel forecast';
-      setError(errorMessage);
-      setToastMessage(errorMessage);
-      setToastColor('danger');
-      setShowToast(true);
-    } finally {
-      setIsPlacingForecast(false);
-    }
-  };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -618,7 +584,7 @@ const MarketDetail: React.FC = () => {
                           <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
                             This market has not been resolved yet.
                           </p>
-                          {user?.is_admin && market.status === 'open' && (
+                          {(user?.is_admin || user?.is_market_moderator) && market.status === 'open' && (
                             <IonButton
                               onClick={() => history.push(`/admin/markets/${id}/resolve`)}
                               className="button-primary"
@@ -654,7 +620,6 @@ const MarketDetail: React.FC = () => {
               userForecast={userForecast || undefined}
               onPlaceForecast={handlePlaceForecast}
               onUpdateForecast={userForecast ? handleUpdateForecast : undefined}
-              onCancelForecast={userForecast ? handleCancelForecast : undefined}
               isLoading={isPlacingForecast}
             />
           )}

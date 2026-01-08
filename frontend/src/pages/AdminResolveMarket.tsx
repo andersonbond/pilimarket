@@ -169,14 +169,14 @@ const AdminResolveMarket: React.FC = () => {
     }
   };
 
-  if (!user || !user.is_admin) {
+  if (!user || (!user.is_admin && !user.is_market_moderator)) {
     return (
       <IonPage>
         <Header />
         <IonContent className="bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4 py-6 max-w-2xl text-center">
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Admin access required.
+              Market moderator or admin access required.
             </p>
             <IonButton onClick={() => history.push('/')} className="button-primary">
               Go Home

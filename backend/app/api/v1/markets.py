@@ -23,7 +23,7 @@ from app.schemas.market import (
     MarketListResponse,
     OutcomeCreate,
 )
-from app.dependencies import get_current_user, get_current_user_id
+from app.dependencies import get_current_user, get_current_user_id, require_market_moderator
 from app.config import settings
 
 router = APIRouter()
@@ -37,14 +37,6 @@ ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "ima
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
-def require_admin(user: User = Depends(get_current_user)) -> User:
-    """Require admin privileges"""
-    if not user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required",
-        )
-    return user
 
 
 def generate_unique_slug(db: Session, title: str, existing_slug: Optional[str] = None) -> str:
@@ -219,9 +211,9 @@ async def get_market(market_id: str, db: Session = Depends(get_db)):
 async def create_market(
     market_data: MarketCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_market_moderator),
 ):
-    """Create a new market (admin only)"""
+    """Create a new market (market moderator or admin only)"""
     # Generate slug
     slug = generate_unique_slug(db, market_data.title)
     
@@ -318,9 +310,9 @@ async def update_market(
     market_id: str,
     market_data: MarketUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_market_moderator),
 ):
-    """Update a market (admin only)"""
+    """Update a market (market moderator or admin only)"""
     market = db.query(Market).filter(Market.id == market_id).first()
     
     if not market:
@@ -410,9 +402,9 @@ async def update_market(
 async def upload_market_image(
     request: Request,
     file: UploadFile = File(...),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_market_moderator),
 ):
-    """Upload market image (admin only)"""
+    """Upload market image (market moderator or admin only)"""
     # Validate file type
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(

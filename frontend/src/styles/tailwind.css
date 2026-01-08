@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DM Sans Font - Using Google Fonts CDN for better compatibility */
+/* Local fonts are also available in /fonts/DM_Sans/static/ as fallback */
+/* Google Fonts provides better browser compatibility and caching */
+
+/* Fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 /* Ensure market title is very bold */
 .market-title {
   font-weight: 900 !important;
@@ -147,10 +167,30 @@ ion-title {
 /* Global button border radius */
 ion-button {
   --border-radius: 8px;
+  --box-shadow: none !important;
+  box-shadow: none !important;
 }
 
 ion-button .button-native {
   border-radius: 8px;
+  box-shadow: none !important;
+}
+
+/* Remove box shadow from all button variants */
+ion-button.button-solid,
+ion-button.button-outline,
+ion-button.button-clear,
+:host(.button-solid),
+:host(.button-outline),
+:host(.button-clear) {
+  --box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+ion-button.button-solid .button-native,
+ion-button.button-outline .button-native,
+ion-button.button-clear .button-native {
+  box-shadow: none !important;
 }
 
 /* Button color themes - lighter, softer colors */
@@ -243,9 +283,9 @@ ion-button.button-primary:focus button span {
 }
 
 .button-secondary {
-  --background: #f9b76f; /* secondary-300 - lighter orange */
+  --background: #c59301; /* primary-600 */
   --background-activated: #f18701; /* secondary-500 */
-  --background-hover: #f79f3f; /* secondary-400 */
+  --background-hover: #f7b801; /* primary-500 */
   --color: #000000;
   --color-activated: #000000;
   --color-hover: #000000;
@@ -449,61 +489,50 @@ ion-button.button-red .button-inner ion-icon {
 }
 
 /* Custom input and textarea padding for Ionic components */
-ion-input.px-4,
-ion-input.px-4.py-3 {
-  --padding-start: 1rem !important;
-  --padding-end: 1rem !important;
+/* Reduced padding to prevent placeholder cutoff */
+ion-input {
+  --padding-start: 0.25rem !important;
+  --padding-end: 0.25rem !important;
+  --padding-top: 0.5rem !important;
+  --padding-bottom: 0.5rem !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
 }
 
-ion-input.py-3,
-ion-input.px-4.py-3 {
-  --padding-top: 0.75rem !important;
-  --padding-bottom: 0.75rem !important;
+ion-input input,
+ion-input .native-input {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  width: 100% !important;
 }
 
-ion-textarea.px-4,
-ion-textarea.px-4.py-3 {
-  --padding-start: 1rem !important;
-  --padding-end: 1rem !important;
+/* Ensure IonItem has proper spacing for inputs */
+ion-item {
+  --inner-padding-end: 0.5rem !important;
+  --inner-padding-start: 0.5rem !important;
 }
 
-ion-textarea.py-3,
-ion-textarea.px-4.py-3 {
-  --padding-top: 0.75rem !important;
-  --padding-bottom: 0.75rem !important;
+ion-item ion-input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
 }
 
-/* Also target native input elements inside shadow DOM */
-ion-input.px-4 input,
-ion-input.px-4 .native-input,
-ion-input.px-4.py-3 input,
-ion-input.px-4.py-3 .native-input {
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+ion-textarea {
+  --padding-start: 0.5rem !important;
+  --padding-end: 0.5rem !important;
+  --padding-top: 0.5rem !important;
+  --padding-bottom: 0.5rem !important;
 }
 
-ion-input.py-3 input,
-ion-input.py-3 .native-input,
-ion-input.px-4.py-3 input,
-ion-input.px-4.py-3 .native-input {
-  padding-top: 0.75rem !important;
-  padding-bottom: 0.75rem !important;
-}
-
-ion-textarea.px-4 textarea,
-ion-textarea.px-4 .native-textarea,
-ion-textarea.px-4.py-3 textarea,
-ion-textarea.px-4.py-3 .native-textarea {
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
-
-ion-textarea.py-3 textarea,
-ion-textarea.py-3 .native-textarea,
-ion-textarea.px-4.py-3 textarea,
-ion-textarea.px-4.py-3 .native-textarea {
-  padding-top: 0.75rem !important;
-  padding-bottom: 0.75rem !important;
+ion-textarea textarea,
+ion-textarea .native-textarea {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
 }
 
 /* Target Ionic's internal button structure - ONLY on hover */

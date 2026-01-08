@@ -34,6 +34,7 @@ export interface UserManagement {
   is_active: boolean;
   is_verified: boolean;
   is_admin: boolean;
+  is_market_moderator: boolean;
   is_banned: boolean;
   chips_frozen: boolean;
   created_at: string;

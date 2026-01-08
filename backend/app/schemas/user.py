@@ -66,6 +66,7 @@ class UserResponse(UserBase):
     is_active: bool
     is_verified: bool
     is_admin: bool
+    is_market_moderator: bool
     created_at: datetime
     updated_at: datetime
     last_login: Optional[datetime] = None

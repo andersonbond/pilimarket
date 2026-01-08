@@ -5,7 +5,7 @@ import uuid as uuid_module
 from typing import Optional
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc, and_
 
 from app.database import get_db
@@ -238,6 +238,13 @@ async def update_forecast(
     points_change = 0
     if forecast_data.points is not None:
         points_change = forecast_data.points - forecast.points
+        
+        # Validate: new points must be greater than current points (can only increase, not decrease)
+        if forecast_data.points <= forecast.points:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot reduce forecast amount. Current forecast is ₱{forecast.points}. You can only increase it to a higher amount.",
+            )
     
     # Validate new outcome if provided
     new_outcome = None
@@ -351,7 +358,12 @@ async def get_user_forecasts(
             detail="You can only view your own forecasts",
         )
     
-    query = db.query(Forecast).filter(Forecast.user_id == user_id)
+    # Build query with eager loading to avoid N+1 queries
+    query = (
+        db.query(Forecast)
+        .options(joinedload(Forecast.outcome), joinedload(Forecast.market))
+        .filter(Forecast.user_id == user_id)
+    )
     
     if market_id:
         query = query.filter(Forecast.market_id == market_id)
@@ -365,15 +377,12 @@ async def get_user_forecasts(
     offset = (page - 1) * limit
     forecasts = query.order_by(desc(Forecast.created_at)).offset(offset).limit(limit).all()
     
-    # Enrich with outcome and market names
+    # Enrich with outcome and market names (already loaded)
     forecast_details = []
     for forecast in forecasts:
-        outcome = db.query(Outcome).filter(Outcome.id == forecast.outcome_id).first()
-        market = db.query(Market).filter(Market.id == forecast.market_id).first()
-        
         forecast_dict = ForecastResponse.model_validate(forecast).model_dump()
-        forecast_dict["outcome_name"] = outcome.name if outcome else None
-        forecast_dict["market_title"] = market.title if market else None
+        forecast_dict["outcome_name"] = forecast.outcome.name if forecast.outcome else None
+        forecast_dict["market_title"] = forecast.market.title if forecast.market else None
         
         forecast_details.append(ForecastDetailResponse(**forecast_dict))
     
@@ -458,64 +467,6 @@ async def get_market_forecasts(
     }
 
 
-@router.delete("/forecasts/{forecast_id}", response_model=dict)
-async def cancel_forecast(
-    forecast_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Cancel a forecast and refund chips
-    
-    Only allowed on open markets
-    """
-    forecast = db.query(Forecast).filter(
-        Forecast.id == forecast_id,
-        Forecast.user_id == current_user.id,
-    ).first()
-    
-    if not forecast:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Forecast not found",
-        )
-    
-    # Get market
-    market = db.query(Market).filter(Market.id == forecast.market_id).first()
-    if not market or market.status != "open":
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot cancel forecast on a closed market",
-        )
-    
-    # Get outcome
-    outcome = db.query(Outcome).filter(Outcome.id == forecast.outcome_id).first()
-    
-    # Atomic transaction: Refund chips + Delete forecast + Update outcome totals
-    try:
-        # Refund chips
-        current_user.chips += forecast.points
-        
-        # Update outcome totals
-        if outcome:
-            outcome.total_points -= forecast.points
-        
-        # Delete forecast
-        db.delete(forecast)
-        
-        db.commit()
-        db.refresh(current_user)
-        
-        return {
-            "success": True,
-            "data": {
-                "new_balance": current_user.chips,
-            },
-            "message": f"Forecast cancelled. {forecast.points} chips refunded.",
-        }
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to cancel forecast. Transaction rolled back.",
-        )
+# Cancel forecast functionality removed
+# Once a forecast is placed, chips are committed and can only be recovered by winning
+# Users can update their forecast (change outcome or reduce chips) but cannot cancel it

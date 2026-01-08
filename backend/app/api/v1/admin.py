@@ -7,7 +7,7 @@ from sqlalchemy import func, and_, or_, desc
 from typing import Optional, List
 from datetime import datetime, timedelta
 
-from app.dependencies import get_db, require_admin
+from app.dependencies import get_db, require_admin, require_market_moderator
 from app.models.user import User
 from app.models.market import Market
 from app.models.forecast import Forecast
@@ -203,9 +203,9 @@ async def suspend_market(
     market_id: str,
     request: SuspendMarketRequest,
     db: Session = Depends(get_db),
-    admin: User = Depends(require_admin),
+    moderator: User = Depends(require_market_moderator),
 ):
-    """Suspend a market"""
+    """Suspend a market (market moderator or admin only)"""
     market = db.query(Market).filter(Market.id == market_id).first()
     if not market:
         raise HTTPException(status_code=404, detail="Market not found")
@@ -226,9 +226,9 @@ async def suspend_market(
 async def unsuspend_market(
     market_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(require_admin),
+    moderator: User = Depends(require_market_moderator),
 ):
-    """Unsuspend a market"""
+    """Unsuspend a market (market moderator or admin only)"""
     market = db.query(Market).filter(Market.id == market_id).first()
     if not market:
         raise HTTPException(status_code=404, detail="Market not found")
@@ -391,9 +391,9 @@ async def get_markets(
     status_filter: Optional[str] = Query(None, description="Filter by status: open, suspended, resolved, cancelled"),
     category_filter: Optional[str] = Query(None, description="Filter by category"),
     db: Session = Depends(get_db),
-    admin: User = Depends(require_admin),
+    moderator: User = Depends(require_market_moderator),
 ):
-    """Get market management list"""
+    """Get market management list (market moderator or admin only)"""
     query = db.query(Market)
     
     # Search filter

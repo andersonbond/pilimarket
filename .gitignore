@@ -3,6 +3,17 @@
 .env.local
 .env.*.local
 
+DEPLOYMENT.md
+TECHNICAL_ARCHITECTURE.md
+PROJECT_PLAN.md
+MVP_BREAKDOWN.md
+README.md
+CHIP_ECONOMY.md
+CHECKLIST.md
+SETUP.md
+CERTIFICATE_FEATURE_ANALYSIS.md
+ADMIN_GUIDE.md
+
 # Python
 __pycache__/
 *.py[cod]

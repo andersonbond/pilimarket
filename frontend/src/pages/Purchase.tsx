@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { IonContent, IonPage, IonButton, IonInput, IonItem, IonLabel, IonSpinner, IonAlert, IonIcon, IonCard, IonCardContent } from '@ionic/react';
+import React, { useState } from 'react';
+import { IonContent, IonPage, IonButton, IonInput, IonItem, IonLabel, IonSpinner, IonAlert, IonIcon, IonCard, IonCardContent, IonModal, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { wallet, informationCircle, checkmarkCircle, closeCircle, arrowBack, trophy } from 'ionicons/icons';
+import { wallet, informationCircle, checkmarkCircle, closeCircle, arrowBack, trophy, close } from 'ionicons/icons';
 import Header from '../components/Header';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,6 +26,7 @@ const Purchase: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertHeader, setAlertHeader] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   // Predefined chip amounts
   const quickAmounts = [20, 50, 100, 200, 500, 1000];
@@ -269,6 +270,25 @@ const Purchase: React.FC = () => {
                   </IonButton>
                 </div>
 
+                {/* Winning Chips Notice */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700 rounded-lg p-4 shadow-md">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <IonIcon icon={wallet} className="text-green-600 dark:text-green-400 text-2xl" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
+                        💰 Win Chips When Your Forecasts Are Correct!
+                      </h3>
+                      <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                        <strong>Winning users receive chips as rewards!</strong> When markets resolve, you get your original bet back 
+                        <strong> plus a proportional share of chips from losing forecasts</strong> (90% of losing chips are distributed to winners). 
+                        The more you bet, the larger your share of the rewards. Make accurate forecasts to earn more chips!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Prize Notice - Emphasized */}
                 <div className="bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 dark:from-primary/30 dark:via-secondary/30 dark:to-primary/30 border-2 border-primary/40 dark:border-primary/50 rounded-lg p-4 shadow-lg">
                   <div className="flex items-start gap-3">
@@ -276,11 +296,17 @@ const Purchase: React.FC = () => {
                       <IonIcon icon={trophy} className="text-primary text-3xl" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-base font-extrabold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
-                        <span>🏆 Top Forecasters May Receive Prizes!</span>
+                      <h3 className="text-base font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span>🏆 Monthly Top Forecasters Receive Digital Certificates!</span>
                       </h3>
-                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-relaxed">
-                        Pilimarket may award prizes to top-performing forecasters every end of the month. Improve your forecasting skills, climb the leaderboard, and you could be eligible for exciting rewards!
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-relaxed mb-2">
+                        Top-performing forecasters at the end of each month will receive a prestigious digital certificate recognizing their forecasting excellence.{' '}
+                        <button
+                          onClick={() => setShowCertificateModal(true)}
+                          className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline font-bold"
+                        >
+                          Click here for more info...
+                        </button>
                       </p>
                     </div>
                   </div>
@@ -340,6 +366,99 @@ const Purchase: React.FC = () => {
           buttons={['OK']}
           cssClass={isSuccess ? 'alert-success' : ''}
         />
+
+        {/* Certificate Info Modal */}
+        <IonModal isOpen={showCertificateModal} onDidDismiss={() => setShowCertificateModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Digital Certificate</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowCertificateModal(false)}>
+                  <IonIcon icon={close} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding bg-gray-50 dark:bg-gray-900">
+            <div className="max-w-3xl mx-auto py-6">
+              {/* Sample Certificate Preview */}
+              <div className="bg-white dark:bg-gray-800 border-2 border-primary/60 dark:border-primary/40 rounded-lg p-8 shadow-lg mb-6">
+                <div className="text-center">
+                  <div className="mb-6">
+                    <div className="inline-block bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-8 py-3 rounded-full text-sm font-bold mb-2">
+                      PILIMARKET CERTIFICATE OF EXCELLENCE
+                    </div>
+                  </div>
+                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                    Top Forecaster
+                  </h4>
+                  <p className="text-xl text-gray-700 dark:text-gray-300 mb-6">
+                    <span className="font-semibold">January 2026</span> Cycle
+                  </p>
+                  <div className="border-t-2 border-gray-300 dark:border-gray-600 pt-6 mt-6">
+                    <p className="text-base text-gray-600 dark:text-gray-400 italic mb-3">
+                      This certificate recognizes exceptional ability to analyze trends, interpret data signals, and make accurate predictions in complex, real-world scenarios.
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                      Demonstrates mastery in pattern recognition, statistical reasoning, and strategic thinking—skills essential for navigating uncertain futures.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm mb-4">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">About the Certificate</h3>
+                <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Recognition Criteria</h4>
+                    <p className="text-sm leading-relaxed">
+                      This certificate is awarded to forecasters who achieve top rankings in the monthly leaderboard, demonstrating consistent accuracy and superior analytical capabilities across multiple prediction markets.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">What It Represents</h4>
+                    <p className="text-sm leading-relaxed">
+                      Earning this certificate showcases your ability to synthesize information, identify key indicators, and make well-reasoned predictions—the same skills valued in political analysis, market research, strategic planning, and data-driven decision making.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Professional Value</h4>
+                    <p className="text-sm leading-relaxed">
+                      This achievement demonstrates your proficiency in quantitative reasoning, risk assessment, and probabilistic thinking. These competencies are highly sought after in fields requiring analytical rigor and strategic foresight.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* How to Earn Section */}
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 rounded-lg p-6 border border-primary/30 dark:border-primary/40">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <IonIcon icon={trophy} className="text-primary text-xl" />
+                  How to Earn This Certificate
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold mt-0.5">•</span>
+                    <span>Climb to the top of the monthly leaderboard by making accurate forecasts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold mt-0.5">•</span>
+                    <span>Maintain high accuracy rates across multiple markets and categories</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold mt-0.5">•</span>
+                    <span>Build your reputation score through consistent, well-reasoned predictions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold mt-0.5">•</span>
+                    <span>Stay active and engaged throughout the month to maximize your ranking</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );

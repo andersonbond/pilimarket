@@ -115,3 +115,13 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
             detail="Admin access required",
         )
     return user
+
+
+def require_market_moderator(user: User = Depends(get_current_user)) -> User:
+    """Require market moderator or admin privileges (can create/manage/resolve markets)"""
+    if not (user.is_admin or user.is_market_moderator):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Market moderator or admin access required",
+        )
+    return user

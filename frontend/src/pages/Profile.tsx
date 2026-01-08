@@ -34,19 +34,29 @@ import {
   checkmarkCircleOutline,
   closeCircleOutline,
 } from 'ionicons/icons';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import { Badge, BadgeListResponse } from '../types/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { User } from '../types/user';
 
 const Profile: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const history = useHistory();
+  const { userId } = useParams<{ userId?: string }>();
+  
+  // Determine which user's profile to show
+  const profileUserId = userId || currentUser?.id;
+  const isOwnProfile = !userId || userId === currentUser?.id;
+  
+  // Profile data state
+  const [profileUser, setProfileUser] = useState<User | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.display_name || '');
-  const [bio, setBio] = useState(user?.bio || '');
+  const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -58,22 +68,57 @@ const Profile: React.FC = () => {
   const [leaderboardRanks, setLeaderboardRanks] = useState<any>({});
   const [isLoadingRanks, setIsLoadingRanks] = useState(false);
 
+  // Fetch profile user data
   useEffect(() => {
-    if (user) {
-      setDisplayName(user.display_name || '');
-      setBio(user.bio || '');
+    if (profileUserId) {
+      fetchProfileUser();
+    }
+  }, [profileUserId]);
+
+  // Fetch profile data when profileUser is loaded
+  useEffect(() => {
+    if (profileUser) {
+      setDisplayName(profileUser.display_name || '');
+      setBio(profileUser.bio || '');
       fetchBadges();
       fetchReputationHistory();
       fetchStats();
-      fetchLeaderboardRanks();
+      if (isOwnProfile) {
+        fetchLeaderboardRanks();
+      }
     }
-  }, [user]);
+  }, [profileUser, isOwnProfile]);
+
+  const fetchProfileUser = async () => {
+    if (!profileUserId) return;
+    
+    setIsLoadingProfile(true);
+    try {
+      if (isOwnProfile && currentUser) {
+        // Use current user data if viewing own profile
+        setProfileUser(currentUser);
+      } else {
+        // Fetch public profile
+        const response = await api.get(`/api/v1/users/${profileUserId}/profile`);
+        if (response.data.success) {
+          setProfileUser(response.data.data.user);
+        } else {
+          setProfileUser(null);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching profile user:', err);
+      setProfileUser(null);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   const fetchStats = async () => {
-    if (!user) return;
+    if (!profileUserId) return;
     setIsLoadingStats(true);
     try {
-      const response = await api.get(`/api/v1/users/${user.id}/forecast-stats`);
+      const response = await api.get(`/api/v1/users/${profileUserId}/forecast-stats`);
       if (response.data.success) {
         setForecastStats(response.data.data);
       }
@@ -85,7 +130,7 @@ const Profile: React.FC = () => {
   };
 
   const fetchLeaderboardRanks = async () => {
-    if (!user) return;
+    if (!profileUserId) return;
     setIsLoadingRanks(true);
     try {
       const periods = ['global', 'weekly', 'monthly'];
@@ -95,7 +140,7 @@ const Profile: React.FC = () => {
         try {
           const response = await api.get(`/api/v1/leaderboard?period=${period}&limit=1000`);
           if (response.data.success && response.data.data.users) {
-            const userIndex = response.data.data.users.findIndex((u: any) => u.id === user.id);
+            const userIndex = response.data.data.users.findIndex((u: any) => u.id === profileUserId);
             if (userIndex !== -1) {
               ranks[period] = {
                 rank: userIndex + 1,
@@ -117,10 +162,10 @@ const Profile: React.FC = () => {
   };
 
   const fetchBadges = async () => {
-    if (!user) return;
+    if (!profileUserId) return;
     setIsLoadingBadges(true);
     try {
-      const response = await api.get<BadgeListResponse>(`/api/v1/users/${user.id}/badges`);
+      const response = await api.get<BadgeListResponse>(`/api/v1/users/${profileUserId}/badges`);
       if (response.data.success) {
         setBadges(response.data.data.badges);
       }
@@ -132,10 +177,10 @@ const Profile: React.FC = () => {
   };
 
   const fetchReputationHistory = async () => {
-    if (!user) return;
+    if (!profileUserId) return;
     setIsLoadingHistory(true);
     try {
-      const response = await api.get(`/api/v1/users/${user.id}/reputation-history`);
+      const response = await api.get(`/api/v1/users/${profileUserId}/reputation-history`);
       if (response.data.success) {
         setReputationHistory(response.data.data.history || []);
       }
@@ -147,6 +192,8 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!isOwnProfile) return; // Only allow editing own profile
+    
     setIsLoading(true);
     setError('');
 
@@ -157,7 +204,9 @@ const Profile: React.FC = () => {
       });
 
       if (response.data.success) {
-        updateUser(response.data.data.user);
+        const updatedUser = response.data.data.user;
+        updateUser(updatedUser);
+        setProfileUser(updatedUser); // Update profile user state
         setIsEditModalOpen(false);
       } else {
         setError(response.data.errors?.[0]?.message || 'Failed to update profile');
@@ -178,10 +227,36 @@ const Profile: React.FC = () => {
     .reverse();
 
   // Reputation percentage for meter
-  const reputationPercentage = user ? Math.min(100, Math.max(0, user.reputation)) : 0;
+  const reputationPercentage = profileUser ? Math.min(100, Math.max(0, profileUser.reputation)) : 0;
 
-  if (!user) {
-    return null;
+  if (isLoadingProfile) {
+    return (
+      <IonPage>
+        <Header />
+        <IonContent className="ion-padding">
+          <div className="flex justify-center items-center h-full">
+            <IonSpinner name="crescent" color="primary" />
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <IonPage>
+        <Header />
+        <IonContent className="ion-padding bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-4xl mx-auto py-6 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">User Not Found</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">The user profile you're looking for doesn't exist.</p>
+            <IonButton onClick={() => history.push('/')} className="button-primary">
+              Go Home
+            </IonButton>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
   }
 
   const accuracy = forecastStats
@@ -202,27 +277,31 @@ const Profile: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="relative -mt-12">
                     <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white dark:border-gray-800">
-                      {user.display_name.charAt(0).toUpperCase()}
+                      {profileUser.display_name.charAt(0).toUpperCase()}
                     </div>
                   </div>
                   <div className="mt-2">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                      {user.display_name}
+                      {profileUser.display_name}
                     </h1>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">{user.email}</p>
-                    {user.bio && (
-                      <p className="text-gray-700 dark:text-gray-300 mt-2 max-w-md">{user.bio}</p>
+                    {isOwnProfile && (
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{profileUser.email}</p>
+                    )}
+                    {profileUser.bio && (
+                      <p className="text-gray-700 dark:text-gray-300 mt-2 max-w-md">{profileUser.bio}</p>
                     )}
                   </div>
                 </div>
-                <IonButton
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="button-primary mt-4 md:mt-0"
-                  fill="outline"
-                >
-                  <IonIcon icon={create} slot="start" />
-                  Edit Profile
-                </IonButton>
+                {isOwnProfile && (
+                  <IonButton
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="button-primary mt-4 md:mt-0"
+                   
+                  >
+                    <IonIcon icon={create} slot="start" />
+                    Edit Profile
+                  </IonButton>
+                )}
               </div>
             </div>
           </div>
@@ -238,7 +317,7 @@ const Profile: React.FC = () => {
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Chips</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      ₱{user.chips.toLocaleString()}
+                      ₱{profileUser.chips.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -254,7 +333,7 @@ const Profile: React.FC = () => {
                   <div className="flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Reputation</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {user.reputation.toFixed(1)}
+                      {profileUser.reputation.toFixed(1)}
                     </p>
                     <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                       <div
@@ -466,32 +545,33 @@ const Profile: React.FC = () => {
 
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
-              {/* Leaderboard Rankings */}
-              <IonCard className="bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
-                <IonCardHeader className="border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <IonIcon icon={trophyOutline} className="text-primary-500 text-xl" />
-                      <IonCardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Rankings
-                      </IonCardTitle>
+              {/* Leaderboard Rankings - Only show for own profile */}
+              {isOwnProfile && (
+                <IonCard className="bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
+                  <IonCardHeader className="border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <IonIcon icon={trophyOutline} className="text-primary-500 text-xl" />
+                        <IonCardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                          Rankings
+                        </IonCardTitle>
+                      </div>
+                      <IonButton
+                        fill="clear"
+                        size="small"
+                        onClick={() => history.push('/leaderboard')}
+                        className="text-primary-600 dark:text-primary-400"
+                      >
+                        <IonIcon icon={arrowForwardOutline} slot="end" />
+                      </IonButton>
                     </div>
-                    <IonButton
-                      fill="clear"
-                      size="small"
-                      onClick={() => history.push('/leaderboard')}
-                      className="text-primary-600 dark:text-primary-400"
-                    >
-                      <IonIcon icon={arrowForwardOutline} slot="end" />
-                    </IonButton>
-                  </div>
-                </IonCardHeader>
-                <IonCardContent className="p-6">
-                  {isLoadingRanks ? (
-                    <div className="flex justify-center py-8">
-                      <IonSpinner name="crescent" color="primary" />
-                    </div>
-                  ) : Object.keys(leaderboardRanks).length > 0 ? (
+                  </IonCardHeader>
+                  <IonCardContent className="p-6">
+                    {isLoadingRanks ? (
+                      <div className="flex justify-center py-8">
+                        <IonSpinner name="crescent" color="primary" />
+                      </div>
+                    ) : Object.keys(leaderboardRanks).length > 0 ? (
                     <div className="space-y-4">
                       {['global', 'weekly', 'monthly'].map((period) => {
                         const rank = leaderboardRanks[period];
@@ -536,6 +616,7 @@ const Profile: React.FC = () => {
                   )}
                 </IonCardContent>
               </IonCard>
+              )}
             </div>
           </div>
         </div>

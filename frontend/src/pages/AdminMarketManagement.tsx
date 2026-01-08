@@ -25,7 +25,7 @@ import {
   IonAlert,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { pauseCircleOutline, playCircleOutline, flagOutline, arrowBackOutline } from 'ionicons/icons';
+import { pauseCircleOutline, playCircleOutline, flagOutline, arrowBackOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import Header from '../components/Header';
 import { getMarkets, suspendMarket, unsuspendMarket, MarketManagement } from '../services/admin';
 
@@ -194,6 +194,17 @@ const AdminMarketManagement: React.FC = () => {
                           </div>
                         </IonLabel>
                         <div slot="end" className="flex gap-2">
+                          {market.status === 'open' && (
+                            <IonButton
+                              fill="outline"
+                              size="small"
+                              color="primary"
+                              onClick={() => history.push(`/admin/markets/${market.id}/resolve`)}
+                            >
+                              <IonIcon icon={checkmarkCircleOutline} slot="start" />
+                              Resolve
+                            </IonButton>
+                          )}
                           {market.status !== 'resolved' && market.status !== 'cancelled' && (
                             <IonButton
                               fill="outline"

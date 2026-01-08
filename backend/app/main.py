@@ -3,6 +3,7 @@ FastAPI application entry point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import os
@@ -10,7 +11,7 @@ import os
 from app.config import settings
 from app.database import engine, Base
 from app.api.v1 import auth, markets, forecasts, purchases, users, leaderboard, admin, resolutions, notifications, activity
-from app.middleware import RateLimitMiddleware
+from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware
 
 # Import models to register them with SQLAlchemy
 from app.models import User  # noqa
@@ -34,6 +35,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# GZip compression middleware (compress responses > 1000 bytes)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Rate limiting middleware
 app.add_middleware(RateLimitMiddleware)

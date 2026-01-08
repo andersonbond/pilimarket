@@ -19,7 +19,7 @@ export const notificationService = {
     if (type) {
       params.append('type', type);
     }
-    const response = await api.get(`/notifications?${params.toString()}`);
+    const response = await api.get(`/api/v1/notifications?${params.toString()}`);
     return response.data;
   },
 
@@ -27,7 +27,7 @@ export const notificationService = {
    * Get unread count only (lightweight)
    */
   getUnreadCount: async (): Promise<number> => {
-    const response = await api.get<UnreadCountResponse>('/notifications/unread-count');
+    const response = await api.get<UnreadCountResponse>('/api/v1/notifications/unread-count');
     return response.data.data.unread_count;
   },
 
@@ -35,14 +35,14 @@ export const notificationService = {
    * Mark notification as read
    */
   markAsRead: async (notificationId: string): Promise<void> => {
-    await api.post(`/notifications/${notificationId}/read`);
+    await api.post(`/api/v1/notifications/${notificationId}/read`);
   },
 
   /**
    * Mark all notifications as read
    */
   markAllAsRead: async (): Promise<void> => {
-    await api.post('/notifications/read-all');
+    await api.post('/api/v1/notifications/read-all');
   },
 };
 

@@ -21,7 +21,7 @@ export const activityService = {
     if (marketId) {
       params.append('market_id', marketId);
     }
-    const response = await api.get(`/activity/feed?${params.toString()}`);
+    const response = await api.get(`/api/v1/activity/feed?${params.toString()}`);
     return response.data;
   },
 
@@ -44,7 +44,7 @@ export const activityService = {
     if (category) {
       params.append('category', category);
     }
-    const response = await api.get(`/activity/global?${params.toString()}`);
+    const response = await api.get(`/api/v1/activity/global?${params.toString()}`);
     return response.data;
   },
 };

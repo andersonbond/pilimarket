@@ -66,6 +66,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
         is_active=True,
         is_verified=False,
         is_admin=False,
+        is_market_moderator=False,
     )
     
     db.add(new_user)

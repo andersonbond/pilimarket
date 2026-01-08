@@ -14,6 +14,9 @@ export default defineConfig({
     port: 8100,
     host: true,
     open: true,
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
   },
   build: {
     outDir: 'dist',

@@ -10,11 +10,17 @@ import {
   IonCardContent,
   IonButton,
   IonIcon,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
 } from '@ionic/react';
-import { trophyOutline, flameOutline, trendingUpOutline, informationCircleOutline } from 'ionicons/icons';
+import { trophyOutline, flameOutline, trendingUpOutline, informationCircleOutline, close } from 'ionicons/icons';
 import Header from '../components/Header';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useHistory } from 'react-router-dom';
 
 interface LeaderboardUser {
   rank: number;
@@ -54,6 +60,7 @@ const CATEGORIES = [
 
 const Leaderboard: React.FC = () => {
   const { user } = useAuth();
+  const history = useHistory();
   const [period, setPeriod] = useState<'global' | 'weekly' | 'monthly'>('global');
   const [category, setCategory] = useState<string>('all');
   const [users, setUsers] = useState<LeaderboardUser[]>([]);
@@ -61,6 +68,7 @@ const Leaderboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, pages: 1 });
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -124,12 +132,18 @@ const Leaderboard: React.FC = () => {
                 <IonCardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <IonIcon icon={informationCircleOutline} className="text-yellow-600 dark:text-yellow-400 text-2xl flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-yellow-900 dark:text-yellow-200 text-sm mb-1">
-                        <span>🏆 Top Forecasters May Receive Prizes!</span>
+                    <div className="flex-1">
+                      <p className="font-bold text-yellow-900 dark:text-yellow-200 text-sm mb-2">
+                        <span>🏆 Monthly Top Forecasters Receive Digital Certificates!</span>
                       </p>
-                      <p className="text-xs text-yellow-800 dark:text-yellow-300 leading-relaxed">
-                        Pilimarket may award prizes to top-performing forecasters. Improve your forecasting skills, climb the leaderboard, and you could be eligible for exciting rewards!
+                      <p className="text-xs text-yellow-800 dark:text-yellow-300 leading-relaxed mb-2">
+                        Top-performing forecasters at the end of each month will receive a prestigious digital certificate recognizing their forecasting excellence.{' '}
+                        <button
+                          onClick={() => setShowCertificateModal(true)}
+                          className="text-yellow-700 dark:text-yellow-300 hover:text-yellow-800 dark:hover:text-yellow-200 underline font-bold"
+                        >
+                          Click here for more info...
+                        </button>
                       </p>
                     </div>
                   </div>
@@ -250,11 +264,12 @@ const Leaderboard: React.FC = () => {
                       {users.map((userEntry) => (
                         <tr
                           key={userEntry.rank}
-                          className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                          className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
                             isCurrentUser(userEntry.user_id)
                               ? 'bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary'
                               : ''
                           }`}
+                          onClick={() => history.push(`/users/${userEntry.user_id}/profile`)}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -353,6 +368,99 @@ const Leaderboard: React.FC = () => {
           </IonCard>
         </div>
       </IonContent>
+
+      {/* Certificate Info Modal */}
+      <IonModal isOpen={showCertificateModal} onDidDismiss={() => setShowCertificateModal(false)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Digital Certificate</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setShowCertificateModal(false)}>
+                <IonIcon icon={close} />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-3xl mx-auto py-6">
+            {/* Sample Certificate Preview */}
+            <div className="bg-white dark:bg-gray-800 border-2 border-yellow-400 dark:border-yellow-600 rounded-lg p-8 shadow-lg mb-6">
+              <div className="text-center">
+                <div className="mb-6">
+                  <div className="inline-block bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-8 py-3 rounded-full text-sm font-bold mb-2">
+                    PILIMARKET CERTIFICATE OF EXCELLENCE
+                  </div>
+                </div>
+                <h4 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+                  Top Forecaster
+                </h4>
+                <p className="text-xl text-gray-700 dark:text-gray-300 mb-6">
+                  <span className="font-semibold">January 2026</span> Cycle
+                </p>
+                <div className="border-t-2 border-gray-300 dark:border-gray-600 pt-6 mt-6">
+                  <p className="text-base text-gray-600 dark:text-gray-400 italic mb-3">
+                    This certificate recognizes exceptional ability to analyze trends, interpret data signals, and make accurate predictions in complex, real-world scenarios.
+                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-500">
+                    Demonstrates mastery in pattern recognition, statistical reasoning, and strategic thinking—skills essential for navigating uncertain futures.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm mb-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">About the Certificate</h3>
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Recognition Criteria</h4>
+                  <p className="text-sm leading-relaxed">
+                    This certificate is awarded to forecasters who achieve top rankings in the monthly leaderboard, demonstrating consistent accuracy and superior analytical capabilities across multiple prediction markets.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">What It Represents</h4>
+                  <p className="text-sm leading-relaxed">
+                    Earning this certificate showcases your ability to synthesize information, identify key indicators, and make well-reasoned predictions—the same skills valued in political analysis, market research, strategic planning, and data-driven decision making.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Professional Value</h4>
+                  <p className="text-sm leading-relaxed">
+                    This achievement demonstrates your proficiency in quantitative reasoning, risk assessment, and probabilistic thinking. These competencies are highly sought after in fields requiring analytical rigor and strategic foresight.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* How to Earn Section */}
+            <div className="bg-gradient-to-br from-yellow/20 to-orange/20 dark:from-yellow/30 dark:to-orange/30 rounded-lg p-6 border border-yellow-300 dark:border-yellow-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <IonIcon icon={trophyOutline} className="text-yellow-600 dark:text-yellow-400 text-xl" />
+                How to Earn This Certificate
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600 dark:text-yellow-400 font-bold mt-0.5">•</span>
+                  <span>Climb to the top of the monthly leaderboard by making accurate forecasts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600 dark:text-yellow-400 font-bold mt-0.5">•</span>
+                  <span>Maintain high accuracy rates across multiple markets and categories</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600 dark:text-yellow-400 font-bold mt-0.5">•</span>
+                  <span>Build your reputation score through consistent, well-reasoned predictions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600 dark:text-yellow-400 font-bold mt-0.5">•</span>
+                  <span>Stay active and engaged throughout the month to maximize your ranking</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </IonContent>
+      </IonModal>
     </IonPage>
   );
 };

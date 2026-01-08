@@ -24,7 +24,9 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
+import MarketModeratorProtectedRoute from './components/MarketModeratorProtectedRoute';
 
+// Import pages directly (code splitting disabled for development stability)
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -71,11 +73,11 @@ const App: React.FC = () => {
             <Route exact path="/markets/:id" component={MarketDetail} />
             <AdminProtectedRoute exact path="/admin" component={AdminDashboard} />
             <AdminProtectedRoute exact path="/admin/users" component={AdminUserManagement} />
-            <AdminProtectedRoute exact path="/admin/markets" component={AdminMarketManagement} />
+            <MarketModeratorProtectedRoute exact path="/admin/markets" component={AdminMarketManagement} />
             <AdminProtectedRoute exact path="/admin/purchases" component={AdminPurchaseMonitoring} />
             <AdminProtectedRoute exact path="/admin/flagged" component={AdminFlaggedItems} />
-            <AdminProtectedRoute exact path="/admin/markets/create" component={AdminCreateMarket} />
-            <AdminProtectedRoute exact path="/admin/markets/:id/resolve" component={AdminResolveMarket} />
+            <MarketModeratorProtectedRoute exact path="/admin/markets/create" component={AdminCreateMarket} />
+            <MarketModeratorProtectedRoute exact path="/admin/markets/:id/resolve" component={AdminResolveMarket} />
             <ProtectedRoute exact path="/purchase" component={Purchase} />
             <ProtectedRoute exact path="/purchase/history" component={PurchaseHistory} />
             <ProtectedRoute exact path="/forecasts" component={ForecastHistory} />
@@ -85,7 +87,8 @@ const App: React.FC = () => {
             <Route exact path="/privacy" component={PrivacyPolicy} />
             <Route exact path="/faq" component={FAQ} />
             <Route exact path="/disclaimer" component={Disclaimer} />
-            <ProtectedRoute exact path="/profile" component={Profile} />
+            <Route exact path="/profile" component={Profile} />
+            <Route exact path="/users/:userId/profile" component={Profile} />
             <Route render={() => <Redirect to="/" />} />
           </IonRouterOutlet>
         </IonReactRouter>

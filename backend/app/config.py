@@ -57,3 +57,7 @@ settings = Settings()
 # Chips are virtual, non-redeemable tokens with no monetary value.
 CHIP_TO_PESO_RATIO = 1.0  # 1 chip = ₱1.00
 
+# Chip Reward System Configuration
+HOUSE_EDGE_PERCENTAGE = 0.10  # 10% of losing chips kept by house (for promotions/bonuses)
+# The remaining (90%) is distributed proportionally to winning users
+

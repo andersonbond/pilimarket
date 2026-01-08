@@ -93,6 +93,15 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
     <IonCard 
       className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden bg-white dark:bg-gray-800"
       onClick={() => history.push(`/markets/${market.id}`)}
+      role="article"
+      aria-label={`Market: ${market.title}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          history.push(`/markets/${market.id}`);
+        }
+      }}
     >
       <IonCardContent className="p-4">
         <div className="flex items-start gap-3 mb-3">
@@ -102,6 +111,8 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
               src={getImageUrl()}
               alt={market.title}
               className="w-16 h-16 object-cover rounded-lg"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 // Hide image if it fails to load
                 (e.target as HTMLImageElement).style.display = 'none';

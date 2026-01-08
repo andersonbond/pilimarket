@@ -220,8 +220,8 @@ const AdminCreateMarket: React.FC = () => {
     }
   };
 
-  // Check if user is admin
-  if (!user?.is_admin) {
+  // Check if user is admin or market moderator
+  if (!user?.is_admin && !user?.is_market_moderator) {
     return (
       <IonPage>
         <Header />
@@ -232,7 +232,7 @@ const AdminCreateMarket: React.FC = () => {
                 Access Denied
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                You need admin privileges to create markets.
+                You need market moderator or admin privileges to create markets.
               </p>
               <IonButton onClick={() => history.push('/markets')}>
                 Back to Markets
