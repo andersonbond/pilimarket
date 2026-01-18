@@ -8,6 +8,7 @@ interface LeaderboardUser {
   rank: number;
   user_id: string;
   display_name: string;
+  avatar_url?: string;
   reputation: number;
   rank_score: number;
   badges: string[];
@@ -109,8 +110,24 @@ const LeaderboardWidget: React.FC = () => {
                     {getRankIcon(user.rank)}
                   </div>
                   {/* User Avatar */}
-                  <div className={`w-8 h-8 bg-gradient-to-br ${getAvatarGradient(user.user_id)} rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm`}>
-                    {user.display_name.charAt(0).toUpperCase()}
+                  <div className="relative">
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.display_name}
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0 shadow-sm"
+                        onError={(e) => {
+                          // Hide image and show gradient fallback if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className={`avatar-fallback w-8 h-8 bg-gradient-to-br ${getAvatarGradient(user.user_id)} rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm ${user.avatar_url ? 'hidden' : 'flex'}`}>
+                      {user.display_name.charAt(0).toUpperCase()}
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 dark:text-white truncate text-sm">

@@ -144,6 +144,7 @@ async def get_biggest_wins(
             wins_by_user_market[key] = {
                 'user_id': user.id,
                 'display_name': user.display_name,
+                'avatar_url': user.avatar_url,
                 'market_id': market.id,
                 'market_title': market.title,
                 'initial_amount': initial_amount,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IonContent, IonPage, IonSpinner, IonButton, IonIcon, IonCard, IonCardContent, IonToast, IonAccordion, IonAccordionGroup, IonItem, IonLabel } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
-import { arrowBack, informationCircle, trendingUp, people, calendar, layers, checkmarkCircle, shareOutline, bookmarkOutline, chevronDown, linkOutline, trophyOutline, closeCircleOutline, settingsOutline } from 'ionicons/icons';
+import { arrowBack, informationCircle, trendingUp, people, calendar, layers, checkmarkCircle, bookmarkOutline, chevronDown, linkOutline, trophyOutline, closeCircleOutline, settingsOutline } from 'ionicons/icons';
 import Header from '../components/Header';
 import ForecastSlip from '../components/ForecastSlip';
 import MarketGraph from '../components/MarketGraph';
@@ -25,6 +25,7 @@ const MarketDetail: React.FC = () => {
   const [toastColor, setToastColor] = useState<'success' | 'danger'>('success');
   const [resolutionAccordionValue, setResolutionAccordionValue] = useState<string | undefined>(undefined);
   const [resolution, setResolution] = useState<any | null>(null);
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
 
   // Polling for real-time updates (only if market is open)
   const POLL_INTERVAL = 5000; // 5 seconds
@@ -100,6 +101,103 @@ const MarketDetail: React.FC = () => {
       fetchResolution();
     }
   }, [market, fetchResolution]);
+
+  // Update Open Graph meta tags for Facebook sharing
+  useEffect(() => {
+    if (!market) return;
+
+    const baseUrl = window.location.origin;
+    const marketUrl = `${baseUrl}/markets/${market.id}`;
+    
+    // Get current top outcome for description
+    const consensus = market.consensus || {};
+    const sortedOutcomes = [...market.outcomes].sort((a, b) => {
+      const aPercent = consensus[a.name] || 0;
+      const bPercent = consensus[b.name] || 0;
+      return bPercent - aPercent;
+    });
+    const topOutcome = sortedOutcomes.length > 0 ? sortedOutcomes[0] : null;
+    const topOutcomePercent = topOutcome ? (consensus[topOutcome.name] || 0).toFixed(0) : '0';
+    
+    // Update or create Open Graph meta tags
+    const updateMetaTag = (property: string, content: string) => {
+      let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    const updateMetaTagName = (name: string, content: string) => {
+      let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // Open Graph tags
+    updateMetaTag('og:title', market.title);
+    updateMetaTag('og:description', topOutcome 
+      ? `${topOutcome.name}: ${topOutcomePercent}% chance | ${market.description || 'Philippine Prediction Market'}`
+      : market.description || 'Philippine Prediction Market');
+    updateMetaTag('og:image', market.image_url || `${baseUrl}/logo.png`);
+    updateMetaTag('og:url', marketUrl);
+    updateMetaTag('og:type', 'website');
+    updateMetaTag('og:site_name', 'ACBMarket');
+
+    // Twitter Card tags
+    updateMetaTagName('twitter:card', 'summary_large_image');
+    updateMetaTagName('twitter:title', market.title);
+    updateMetaTagName('twitter:description', topOutcome 
+      ? `${topOutcome.name}: ${topOutcomePercent}% chance`
+      : market.description || 'Philippine Prediction Market');
+    updateMetaTagName('twitter:image', market.image_url || `${baseUrl}/logo.png`);
+
+    // Update page title
+    document.title = `${market.title} | ACBMarket`;
+
+    // Cleanup function to restore default meta tags when component unmounts
+    return () => {
+      document.title = 'ACBMarket - Philippine Prediction Market';
+    };
+  }, [market]);
+
+  const handleCopyLink = async () => {
+    if (!market) return;
+    
+    const baseUrl = window.location.origin;
+    const marketUrl = `${baseUrl}/markets/${market.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(marketUrl);
+      setShowCopiedToast(true);
+      setTimeout(() => setShowCopiedToast(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = marketUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setShowCopiedToast(true);
+        setTimeout(() => setShowCopiedToast(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Failed to copy link:', fallbackErr);
+        setToastMessage('Failed to copy link');
+        setToastColor('danger');
+        setShowToast(true);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   // Polling for real-time updates
   useEffect(() => {
@@ -334,11 +432,16 @@ const MarketDetail: React.FC = () => {
 
                 {/* Action Icons */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <IonButton fill="clear" size="small">
-                    <IonIcon icon={shareOutline} />
+                  <IonButton 
+                    fill="clear" 
+                    size="default"
+                    onClick={handleCopyLink}
+                    title="Copy link"
+                  >
+                    <IonIcon icon={linkOutline} className="text-xl" />
                   </IonButton>
-                  <IonButton fill="clear" size="small">
-                    <IonIcon icon={bookmarkOutline} />
+                  <IonButton fill="clear" size="default">
+                    <IonIcon icon={bookmarkOutline} className="text-xl" />
                   </IonButton>
                 </div>
               </div>
@@ -668,6 +771,14 @@ const MarketDetail: React.FC = () => {
           message={toastMessage}
           duration={3000}
           color={toastColor}
+          position="top"
+        />
+        <IonToast
+          isOpen={showCopiedToast}
+          onDidDismiss={() => setShowCopiedToast(false)}
+          message="Copied!"
+          duration={2000}
+          color="success"
           position="top"
         />
       </IonContent>

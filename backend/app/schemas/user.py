@@ -101,6 +101,7 @@ class UserPublic(BaseModel):
     """Public user schema (for leaderboards, etc.)"""
     id: str
     display_name: str
+    avatar_url: Optional[str] = None
     reputation: float
     rank_score: float
     badges: List[str] = Field(default_factory=list)

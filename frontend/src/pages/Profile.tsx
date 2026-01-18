@@ -29,6 +29,8 @@ import {
   searchOutline,
   timeOutline,
   eyeOutline,
+  layersOutline,
+  pulseOutline,
 } from 'ionicons/icons';
 import { useHistory, useParams } from 'react-router-dom';
 import Header from '../components/Header';
@@ -755,9 +757,11 @@ const Profile: React.FC = () => {
                   className="bg-transparent"
                 >
                   <IonSegmentButton value="positions">
+                    <IonIcon icon={layersOutline} className="mr-1" />
                     <IonLabel>Positions</IonLabel>
                   </IonSegmentButton>
                   <IonSegmentButton value="activity">
+                    <IonIcon icon={pulseOutline} className="mr-1" />
                     <IonLabel>Activity</IonLabel>
                   </IonSegmentButton>
                 </IonSegment>

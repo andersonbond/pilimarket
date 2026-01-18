@@ -28,6 +28,7 @@ interface LeaderboardUser {
   rank: number;
   user_id: string;
   display_name: string;
+  avatar_url?: string;
   reputation: number;
   rank_score: number;
   winning_streak?: number;
@@ -42,6 +43,7 @@ interface BiggestWin {
   rank: number;
   user_id: string;
   display_name: string;
+  avatar_url?: string;
   avatar_gradient?: string;
   event: string;
   initial_amount: number;
@@ -158,6 +160,7 @@ const Leaderboard: React.FC = () => {
           rank: win.rank,
           user_id: win.user_id,
           display_name: win.display_name,
+          avatar_url: win.avatar_url,
           avatar_gradient: getAvatarGradient(win.user_id),
           event: win.market_title || 'Market Event',
           initial_amount: win.initial_amount || 0,
@@ -364,18 +367,34 @@ const Leaderboard: React.FC = () => {
                               </td>
                               <td className="px-4 py-4">
                                 <div className="flex items-center gap-3">
-                                  <div
-                                    className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(
-                                      userEntry.user_id
-                                    )} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 relative shadow-sm`}
-                                  >
-                                    {userEntry.rank <= 3 && (
-                                      <IonIcon
-                                        icon={trophyOutline}
-                                        className="absolute -top-1 -right-1 text-yellow-400 text-lg drop-shadow-md"
+                                  <div className="relative">
+                                    {userEntry.avatar_url ? (
+                                      <img
+                                        src={userEntry.avatar_url}
+                                        alt={userEntry.display_name}
+                                        className="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-sm"
+                                        onError={(e) => {
+                                          // Hide image and show gradient fallback if image fails to load
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          const fallback = target.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }}
                                       />
-                                    )}
-                                    {userEntry.display_name.charAt(0).toUpperCase()}
+                                    ) : null}
+                                    <div
+                                      className={`avatar-fallback w-10 h-10 rounded-full bg-gradient-to-br ${getAvatarGradient(
+                                        userEntry.user_id
+                                      )} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 relative shadow-sm ${userEntry.avatar_url ? 'hidden' : 'flex'}`}
+                                    >
+                                      {userEntry.rank <= 3 && (
+                                        <IonIcon
+                                          icon={trophyOutline}
+                                          className="absolute -top-1 -right-1 text-yellow-400 text-lg drop-shadow-md"
+                                        />
+                                      )}
+                                      {userEntry.display_name.charAt(0).toUpperCase()}
+                                    </div>
                                   </div>
                                   <div className="min-w-0">
                                     <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -469,10 +488,26 @@ const Leaderboard: React.FC = () => {
                               #{win.rank}
                             </span>
                           </div>
-                          <div
-                            className={`w-8 h-8 rounded-full bg-gradient-to-br ${win.avatar_gradient || getAvatarGradient(win.user_id)} flex items-center justify-center text-white font-bold text-xs flex-shrink-0`}
-                          >
-                            {win.display_name.charAt(0).toUpperCase()}
+                          <div className="relative">
+                            {win.avatar_url ? (
+                              <img
+                                src={win.avatar_url}
+                                alt={win.display_name}
+                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                onError={(e) => {
+                                  // Hide image and show gradient fallback if image fails to load
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const fallback = target.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`avatar-fallback w-8 h-8 rounded-full bg-gradient-to-br ${win.avatar_gradient || getAvatarGradient(win.user_id)} flex items-center justify-center text-white font-bold text-xs flex-shrink-0 ${win.avatar_url ? 'hidden' : 'flex'}`}
+                            >
+                              {win.display_name.charAt(0).toUpperCase()}
+                            </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium text-gray-900 dark:text-white truncate">

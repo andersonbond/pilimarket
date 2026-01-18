@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage, IonButton, IonInput, IonItem, IonLabel, IonIcon, IonSpinner } from '@ionic/react';
 import { logIn, close, callOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { useHistory, Link, useLocation } from 'react-router-dom';
@@ -10,7 +10,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const history = useHistory();
   const location = useLocation();
 
@@ -19,6 +19,14 @@ const Login: React.FC = () => {
     const params = new URLSearchParams(location.search);
     return params.get('return') || '/';
   };
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      const returnUrl = getReturnUrl();
+      history.replace(returnUrl);
+    }
+  }, [isAuthenticated, authLoading, history, location.search]);
 
   const handleContactNumberChange = (value: string) => {
     // Only allow digits and limit to 10 characters

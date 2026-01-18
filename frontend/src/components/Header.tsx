@@ -109,7 +109,13 @@ const Header: React.FC = () => {
                   </IonButton>
                 </>
               )}
-              <IonButton onClick={logout} className="bg-gray-100 text-black rounded-md font-dm-sans">
+              <IonButton 
+                onClick={() => {
+                  logout();
+                  history.push('/login');
+                }} 
+                className="bg-gray-100 text-black rounded-md font-dm-sans"
+              >
                 <IonIcon icon={logOut} slot="start" />
                 <span className="hidden lg:inline">Logout</span>
               </IonButton>
@@ -268,6 +274,7 @@ const Header: React.FC = () => {
                   onClick={() => {
                     logout();
                     setIsMobileMenuOpen(false);
+                    history.push('/login');
                   }}
                   className="justify-start text-left text-red-200 dark:text-red-400 font-dm-sans"
                 >

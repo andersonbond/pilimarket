@@ -179,6 +179,7 @@ def calculate_leaderboard(
         leaderboard.append({
             "user_id": user.id,
             "display_name": user.display_name,
+            "avatar_url": user.avatar_url,
             "reputation": round(user.reputation, 2),
             "rank_score": rank_score,
             "winning_streak": winning_streak,
