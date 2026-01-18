@@ -9,7 +9,7 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [contactNumber, setContactNumber] = useState('+63');
+  const [contactNumberDigits, setContactNumberDigits] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -35,42 +35,9 @@ const Register: React.FC = () => {
   };
 
   const handleContactNumberChange = (value: string) => {
-    // Ensure it always starts with +63
-    if (!value.startsWith('+63')) {
-      setContactNumber('+63');
-      return;
-    }
-    // Only allow digits after +63, max 10 digits
-    const digits = value.replace('+63', '').replace(/\D/g, '').slice(0, 10);
-    setContactNumber('+63' + digits);
-  };
-
-  const handleContactNumberKeyDown = (e: React.KeyboardEvent<HTMLIonInputElement>) => {
-    const ionInput = e.currentTarget as HTMLIonInputElement;
-    const input = ionInput.querySelector('input') as HTMLInputElement;
-    if (!input) return;
-    
-    const cursorPosition = input.selectionStart || 0;
-    
-    // Prevent deletion of +63 prefix
-    if ((e.key === 'Backspace' || e.key === 'Delete') && cursorPosition <= 3) {
-      e.preventDefault();
-      return;
-    }
-    
-    // Prevent selection and deletion of +63
-    if (e.key === 'Backspace' && input.selectionStart !== null && input.selectionEnd !== null) {
-      const start = input.selectionStart;
-      const end = input.selectionEnd;
-      if (start < 3 || end < 3) {
-        e.preventDefault();
-        // Move cursor to after +63
-        setTimeout(() => {
-          input.setSelectionRange(3, 3);
-        }, 0);
-        return;
-      }
-    }
+    // Only allow digits, max 10 digits
+    const digits = value.replace(/\D/g, '').slice(0, 10);
+    setContactNumberDigits(digits);
   };
 
   const validateDisplayName = (): boolean => {
@@ -81,8 +48,7 @@ const Register: React.FC = () => {
 
   const validateContactNumber = (): boolean => {
     // Format: +63 followed by exactly 10 digits
-    const pattern = /^\+63\d{10}$/;
-    return pattern.test(contactNumber);
+    return contactNumberDigits.length === 10;
   };
 
   const getPasswordStrength = () => {
@@ -114,7 +80,7 @@ const Register: React.FC = () => {
     }
 
     if (!validateContactNumber()) {
-      setError('Contact number must be in format +63XXXXXXXXXX (10 digits after +63)');
+      setError('Contact number must be exactly 10 digits (e.g., 9123456789)');
       return;
     }
 
@@ -127,7 +93,8 @@ const Register: React.FC = () => {
 
     try {
       // Email is optional, so we don't send it
-      await register({ password, display_name: displayName, contact_number: contactNumber });
+      const fullContactNumber = '+63' + contactNumberDigits;
+      await register({ password, display_name: displayName, contact_number: fullContactNumber });
       history.push('/');
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -205,6 +172,17 @@ const Register: React.FC = () => {
                   ion-item .item-native {
                     width: 100%;
                   }
+                  .contact-number-wrapper {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                    gap: 0.5rem;
+                  }
+                  .contact-number-prefix {
+                    user-select: none;
+                    pointer-events: none;
+                    font-weight: 500;
+                  }
                 `}</style>
                 {/* Display Name */}
                 <div className="space-y-2">
@@ -267,32 +245,24 @@ const Register: React.FC = () => {
                     <IonLabel position="stacked" className="text-gray-700 dark:text-gray-300 font-medium">
                       Contact Number
                     </IonLabel>
-                    <IonInput
-                      type="tel"
-                      value={contactNumber}
-                      onIonInput={(e) => handleContactNumberChange(e.detail.value!)}
-                      onKeyDown={handleContactNumberKeyDown}
-                      onFocus={(e) => {
-                        // Prevent selection of +63 prefix
-                        const ionInput = e.target as HTMLIonInputElement;
-                        const input = ionInput.querySelector('input') as HTMLInputElement;
-                        if (input && input.selectionStart !== null && input.selectionStart < 3) {
-                          setTimeout(() => {
-                            input.setSelectionRange(3, 3);
-                          }, 0);
-                        }
-                      }}
-                      placeholder="+639123456789"
-                      required
-                      maxlength={13}
-                      className="w-full"
-                    />
+                    <div className="contact-number-wrapper">
+                      <span className="contact-number-prefix text-gray-700 dark:text-gray-300 font-medium">+63</span>
+                      <IonInput
+                        type="tel"
+                        value={contactNumberDigits}
+                        onIonInput={(e) => handleContactNumberChange(e.detail.value!)}
+                        placeholder="9123456789"
+                        required
+                        maxlength={10}
+                        className="flex-1"
+                      />
+                    </div>
                   </IonItem>
                   <p className="text-xs text-gray-500 dark:text-gray-400 ml-4">
-                    Format: +63 followed by 10 digits (e.g., +639123456789)
+                    Format: +63 followed by 10 digits (e.g., 9123456789)
                   </p>
-                  {contactNumber.length > 3 && !validateContactNumber() && (
-                    <p className="text-xs text-red-500 ml-4">Invalid format. Must be +63 followed by 10 digits</p>
+                  {contactNumberDigits.length > 0 && !validateContactNumber() && (
+                    <p className="text-xs text-red-500 ml-4">Must be exactly 10 digits</p>
                   )}
                 </div>
 

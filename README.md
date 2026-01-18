@@ -148,24 +148,6 @@ cd backend
 alembic upgrade head
 ```
 
-## 🎯 MVP Phases
-
-The project is organized into 10 phases:
-
-1. **Phase 0**: Project Setup & Infrastructure
-2. **Phase 1**: Core Authentication & User Management
-3. **Phase 2**: Chip Purchase System
-4. **Phase 3**: Market System - Core
-5. **Phase 4**: Forecast System
-6. **Phase 5**: Market Resolution System
-7. **Phase 6**: Reputation & Badges System
-8. **Phase 7**: Leaderboard System
-9. **Phase 8**: Activity Feed & Notifications
-10. **Phase 9**: Admin Panel
-11. **Phase 10**: Polish, Testing & Deployment
-
-See [MVP_BREAKDOWN.md](./MVP_BREAKDOWN.md) for detailed deliverables.
-
 ## 🔑 Key API Endpoints
 
 ### Authentication

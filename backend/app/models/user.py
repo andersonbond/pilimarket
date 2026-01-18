@@ -19,6 +19,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     contact_number = Column(String, nullable=False, unique=True, index=True)  # Format: +63XXXXXXXXXX, unique
     bio = Column(Text, nullable=True)
+    avatar_url = Column(String, nullable=True)  # Profile photo URL
     
     # Virtual chips (non-redeemable)
     chips = Column(Integer, default=0, nullable=False)  # Starting chips (users must purchase)

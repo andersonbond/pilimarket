@@ -1,7 +1,11 @@
 """
 User endpoints
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+import uuid as uuid_module
+import os
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import JSONResponse
+from starlette.requests import Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -10,6 +14,22 @@ from app.schemas.user import UserResponse, UserUpdate, UserProfile
 from app.dependencies import get_current_user
 
 router = APIRouter()
+
+# Create uploads directory for user avatars if it doesn't exist
+UPLOAD_DIR = "uploads/avatars"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Allowed image MIME types (common mobile formats)
+ALLOWED_IMAGE_TYPES = [
+    "image/jpeg", 
+    "image/jpg", 
+    "image/png", 
+    "image/gif", 
+    "image/webp",
+    "image/heic",  # iPhone format
+    "image/heif",  # iPhone format
+]
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 @router.get("/me", response_model=dict)
@@ -56,6 +76,10 @@ async def update_profile(
     # Update bio if provided
     if request.bio is not None:
         current_user.bio = request.bio
+    
+    # Update avatar_url if provided
+    if request.avatar_url is not None:
+        current_user.avatar_url = request.avatar_url
     
     db.commit()
     db.refresh(current_user)
@@ -154,6 +178,63 @@ async def check_user_badges(user_id: str, db: Session = Depends(get_db)):
             "badges": badges,
         },
         "errors": None,
+    }
+
+
+@router.post("/me/upload-avatar", response_model=dict)
+async def upload_profile_avatar(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload profile avatar image"""
+    # Validate file type
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid file type. Allowed types: JPEG, PNG, GIF, WebP, HEIC, HEIF",
+        )
+    
+    # Read file content to check size
+    file_content = await file.read()
+    file_size = len(file_content)
+    
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File size exceeds 10MB limit. Current size: {file_size / 1024 / 1024:.2f}MB",
+        )
+    
+    # Generate unique filename
+    file_ext = os.path.splitext(file.filename)[1] or ".jpg"
+    # Normalize extension for HEIC/HEIF
+    if file.content_type in ["image/heic", "image/heif"]:
+        file_ext = ".heic"
+    unique_filename = f"{uuid_module.uuid4()}{file_ext}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
+    
+    # Save file
+    with open(file_path, "wb") as buffer:
+        buffer.write(file_content)
+    
+    # Return full URL (in production, this would be a CDN URL)
+    # For development, construct URL from request
+    base_url = str(request.base_url).rstrip('/')
+    image_url = f"{base_url}/uploads/avatars/{unique_filename}"
+    
+    # Update user's avatar_url
+    current_user.avatar_url = image_url
+    db.commit()
+    db.refresh(current_user)
+    
+    return {
+        "success": True,
+        "data": {
+            "avatar_url": image_url,
+            "filename": unique_filename,
+        },
+        "message": "Avatar uploaded successfully",
     }
 
 

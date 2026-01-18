@@ -13,6 +13,7 @@ class UserBase(BaseModel):
     display_name: str = Field(..., min_length=3, max_length=50)
     contact_number: str = Field(..., description="Contact number in format +63XXXXXXXXXX")
     bio: Optional[str] = Field(None, max_length=500)
+    avatar_url: Optional[str] = None  # Profile photo URL
 
 
 class UserCreate(UserBase):
@@ -45,6 +46,7 @@ class UserUpdate(BaseModel):
     """User update schema"""
     display_name: Optional[str] = Field(None, min_length=3, max_length=50)
     bio: Optional[str] = Field(None, max_length=500)
+    avatar_url: Optional[str] = None  # Profile photo URL
     
     @validator('display_name')
     def validate_display_name(cls, v):

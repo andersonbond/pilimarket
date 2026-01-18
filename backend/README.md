@@ -6,7 +6,7 @@ FastAPI backend for Pilimarket prediction market platform.
 
 1. Create virtual environment:
 ```bash
-python -m venv venv
+python/python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
@@ -23,9 +23,30 @@ alembic upgrade head
 ```
 
 5. Start development server:
+
+**For macOS:**
 ```bash
-uvicorn app.main:app --reload
+# Option 1: Using venv Python directly (recommended for macOS)
+./venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Option 2: Activate venv first, then run
+source venv/bin/activate
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
+
+**For Linux/Windows:**
+```bash
+# Activate virtual environment first
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Run with auto-reload (Linux/Windows)
+uvicorn app.main:app --reload
+
+# Or without reload
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+**Note:** The `--reload` flag may not work properly on macOS. Use the commands above without `--reload` for macOS.
 
 ## API Documentation
 

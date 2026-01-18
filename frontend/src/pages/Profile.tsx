@@ -103,6 +103,8 @@ const Profile: React.FC = () => {
   const [forecastStats, setForecastStats] = useState<any>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoadingBadges, setIsLoadingBadges] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
   // New states for redesigned profile
   const [activeTab, setActiveTab] = useState<'positions' | 'activity'>('positions');
@@ -128,6 +130,7 @@ const Profile: React.FC = () => {
     if (profileUser) {
       setDisplayName(profileUser.display_name || '');
       setBio(profileUser.bio || '');
+      setAvatarPreview(null); // Reset preview when modal opens
       fetchStats();
       fetchForecasts(); // Fetch forecasts for both own and public profiles
       fetchBadges(); // Fetch badges
@@ -187,8 +190,8 @@ const Profile: React.FC = () => {
       const response = await api.get(`/api/v1/users/${profileUserId}/badges`);
       if (response.data.success && response.data.data.badges) {
         setBadges(response.data.data.badges);
-      }
-    } catch (err) {
+          }
+        } catch (err) {
       console.error('Error fetching badges:', err);
       setBadges([]);
     } finally {
@@ -211,7 +214,7 @@ const Profile: React.FC = () => {
           ? `/api/v1/users/${profileUserId}/forecasts?page=${page}&limit=100`
           : `/api/v1/users/${profileUserId}/forecasts?page=${page}&limit=100&public_only=true`;
         const response = await api.get(url);
-        if (response.data.success) {
+      if (response.data.success) {
           const forecasts = response.data.data.forecasts || [];
           allForecasts = [...allForecasts, ...forecasts];
           
@@ -256,6 +259,61 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image size must be less than 10MB');
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Please upload a JPEG, PNG, GIF, WebP, HEIC, or HEIF image');
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload file
+    setIsUploadingAvatar(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/api/v1/users/me/upload-avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.success) {
+        const avatarUrl = response.data.data.avatar_url;
+        // Update profile user with new avatar URL
+        if (profileUser) {
+          const updatedUser = { ...profileUser, avatar_url: avatarUrl };
+          setProfileUser(updatedUser);
+          updateUser(updatedUser);
+        }
+      } else {
+        setError(response.data.errors?.[0]?.message || 'Failed to upload avatar');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.errors?.[0]?.message || err.response?.data?.detail || 'Failed to upload avatar');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!isOwnProfile) return;
     
@@ -266,6 +324,7 @@ const Profile: React.FC = () => {
       const response = await api.patch('/api/v1/users/me', {
         display_name: displayName,
         bio,
+        avatar_url: profileUser?.avatar_url, // Include current avatar_url
       });
 
       if (response.data.success) {
@@ -273,6 +332,7 @@ const Profile: React.FC = () => {
         updateUser(updatedUser);
         setProfileUser(updatedUser);
         setIsEditModalOpen(false);
+        setAvatarPreview(null);
       } else {
         setError(response.data.errors?.[0]?.message || 'Failed to update profile');
       }
@@ -521,27 +581,45 @@ const Profile: React.FC = () => {
                 <IonCardContent className="p-6">
                   <div className="flex items-start gap-4">
                     {/* Avatar */}
-                    <div className={`w-16 h-16 bg-gradient-to-br ${getAvatarGradient(profileUser.id)} rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md`}>
-                      {profileUser.display_name.charAt(0).toUpperCase()}
+                    <div className="relative">
+                      {profileUser.avatar_url ? (
+                        <img
+                          src={profileUser.avatar_url}
+                          alt={profileUser.display_name}
+                          className="w-16 h-16 rounded-full object-cover flex-shrink-0 shadow-md"
+                          onError={(e) => {
+                            // Hide image and show gradient fallback if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className={`avatar-fallback w-16 h-16 bg-gradient-to-br ${getAvatarGradient(profileUser.id)} rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md ${profileUser.avatar_url ? 'hidden' : 'flex'}`}
+                      >
+                        {profileUser.display_name.charAt(0).toUpperCase()}
+                      </div>
                     </div>
                     
                     {/* User Info */}
                     <div className="flex-1 min-w-0">
                       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                        {profileUser.display_name}
-                      </h1>
+                      {profileUser.display_name}
+                    </h1>
                       <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-2">
                         <span className="flex items-center gap-1">
                           <IonIcon icon={timeOutline} className="text-base" />
                           Joined {joinDate}
                         </span>
-                        {isOwnProfile && (
+                    {isOwnProfile && (
                           <span className="flex items-center gap-1">
                             <IonIcon icon={eyeOutline} className="text-base" />
                             Profile views
                           </span>
-                        )}
-                      </div>
+                    )}
+                  </div>
                       
                       {/* Badges */}
                       {badges.length > 0 && (
@@ -554,9 +632,9 @@ const Profile: React.FC = () => {
                             >
                               <span className="text-base">{badge.icon}</span>
                               <span>{badge.name}</span>
-                            </div>
+              </div>
                           ))}
-                        </div>
+            </div>
                       )}
                       
                       {/* Summary Stats */}
@@ -566,21 +644,21 @@ const Profile: React.FC = () => {
                           <p className="text-lg font-semibold text-gray-900 dark:text-white">
                             {positionsValue.toLocaleString()}
                           </p>
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Biggest Win</p>
                           <p className="text-lg font-semibold text-gray-900 dark:text-white">
                             {biggestWin !== null ? biggestWin.toLocaleString() : '—'}
-                          </p>
-                        </div>
+                    </p>
+                  </div>
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Predictions</p>
                           <p className="text-lg font-semibold text-gray-900 dark:text-white">
                             {forecastStats?.total_forecasts || 0}
                           </p>
-                        </div>
-                      </div>
                     </div>
+                  </div>
+                </div>
 
                     {/* Edit Button */}
                     {isOwnProfile && (
@@ -594,25 +672,25 @@ const Profile: React.FC = () => {
                         Edit
                       </IonButton>
                     )}
-                  </div>
-                </IonCardContent>
-              </IonCard>
-            </div>
+                </div>
+              </IonCardContent>
+            </IonCard>
+          </div>
 
             {/* Right Column - Profit/Loss */}
             <div className="lg:col-span-1">
               <IonCard className="bg-white dark:bg-gray-800 shadow-sm">
                 <IonCardHeader className="pb-3">
-                  <IonCardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <IonCardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                     Profit/Loss
-                  </IonCardTitle>
-                </IonCardHeader>
+                      </IonCardTitle>
+                  </IonCardHeader>
                 <IonCardContent>
                   <div className="mb-4">
                     <p className={`text-3xl font-bold ${profitLoss >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       {profitLoss >= 0 ? '+' : ''}{profitLoss.toLocaleString()}
                     </p>
-                  </div>
+                      </div>
 
                   {/* Timeframe Tabs - Only show for own profile (when we have forecasts) */}
                   {isOwnProfile && forecasts.length > 0 && (
@@ -630,19 +708,19 @@ const Profile: React.FC = () => {
                           {period === 'all' ? 'All-Time' : period.toUpperCase()}
                         </button>
                       ))}
-                    </div>
+                        </div>
                   )}
 
                   {/* Profit/Loss Chart */}
                   <div className="h-32">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={profitLossChartData}>
-                        <defs>
+                            <defs>
                           <linearGradient id="colorProfitLoss" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={profitLoss >= 0 ? "#10b981" : "#ef4444"} stopOpacity={0.3} />
                             <stop offset="95%" stopColor={profitLoss >= 0 ? "#10b981" : "#ef4444"} stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
+                              </linearGradient>
+                            </defs>
                         <Area
                           type="monotone"
                           dataKey="value"
@@ -650,21 +728,21 @@ const Profile: React.FC = () => {
                           strokeWidth={2}
                           fillOpacity={1}
                           fill="url(#colorProfitLoss)"
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'var(--ion-background-color)',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: 'var(--ion-background-color)',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
                           }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                  </IonCardContent>
+                </IonCard>
                   </div>
-                </IonCardContent>
-              </IonCard>
-            </div>
-          </div>
+                    </div>
 
           {/* Bottom Section - Positions/Activity Tabs */}
           <IonCard className="bg-white dark:bg-gray-800 shadow-sm">
@@ -683,7 +761,7 @@ const Profile: React.FC = () => {
                     <IonLabel>Activity</IonLabel>
                   </IonSegmentButton>
                 </IonSegment>
-              </div>
+                            </div>
 
               {/* Positions Tab Content */}
               {activeTab === 'positions' && (
@@ -712,7 +790,7 @@ const Profile: React.FC = () => {
                         >
                           Closed
                         </button>
-                      </div>
+                            </div>
                       <div className="flex-1 relative">
                         <IonItem className="rounded-lg border border-gray-200 dark:border-gray-700" lines="none">
                           <IonIcon icon={searchOutline} slot="start" className="text-gray-400" />
@@ -723,8 +801,8 @@ const Profile: React.FC = () => {
                             className="text-gray-900 dark:text-white"
                           />
                         </IonItem>
-                      </div>
-                    </div>
+                          </div>
+                        </div>
                   )}
 
                   {/* For public profiles, show search only */}
@@ -749,7 +827,7 @@ const Profile: React.FC = () => {
                       {isLoadingForecasts ? (
                         <div className="flex justify-center items-center py-12">
                           <IonSpinner name="crescent" />
-                        </div>
+                      </div>
                       ) : filteredPositions.length === 0 ? (
                         <div className="text-center py-12">
                           <p className="text-gray-500 dark:text-gray-400">
@@ -758,7 +836,7 @@ const Profile: React.FC = () => {
                               : `No ${positionFilter} positions found`
                             }
                           </p>
-                        </div>
+                    </div>
                       ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full">
@@ -791,7 +869,7 @@ const Profile: React.FC = () => {
                               : isLost ? -forecast.points : 0;
                             const profitPercent = isPending ? 0 : ((profit / forecast.points) * 100);
 
-                            return (
+                        return (
                               <tr
                                 key={forecast.id}
                                 className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
@@ -809,12 +887,12 @@ const Profile: React.FC = () => {
                                       : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                                   }`}>
                                     {forecast.outcome_name || 'N/A'}
-                                  </span>
+                              </span>
                                 </td>
                                 <td className="px-4 py-4">
                                   <span className="text-sm text-gray-900 dark:text-white">
                                     {forecast.points.toLocaleString()} chips
-                                  </span>
+                                </span>
                                 </td>
                                 <td className="px-4 py-4">
                                   <span className={`px-2 py-1 text-xs font-medium rounded ${
@@ -825,7 +903,7 @@ const Profile: React.FC = () => {
                                       : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                                   }`}>
                                     {isPending ? 'Pending' : isWon ? 'Won' : 'Lost'}
-                                  </span>
+                              </span>
                                 </td>
                                 <td className="px-4 py-4">
                                   {isPending ? (
@@ -840,16 +918,16 @@ const Profile: React.FC = () => {
                                           : 'text-red-600 dark:text-red-400'
                                       }`}>
                                         {profit >= 0 ? '+' : ''}{profit.toLocaleString()}
-                                      </div>
+                            </div>
                                       <div className="text-xs text-gray-500 dark:text-gray-400">
                                         ({profitPercent >= 0 ? '+' : ''}{profitPercent.toFixed(2)}%)
-                                      </div>
-                                    </div>
+                              </div>
+                          </div>
                                   )}
                                 </td>
                               </tr>
-                            );
-                          })}
+                        );
+                      })}
                         </tbody>
                       </table>
                     </div>
@@ -920,8 +998,8 @@ const Profile: React.FC = () => {
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {formatTimeAgo(activity.created_at)}
-                              </p>
-                            </div>
+                      </p>
+                    </div>
                           </div>
                         );
                       })}
@@ -940,10 +1018,10 @@ const Profile: React.FC = () => {
                             )}
                           </IonButton>
                         </div>
-                      )}
-                    </div>
+              )}
+            </div>
                   )}
-                </div>
+          </div>
               )}
             </IonCardContent>
           </IonCard>
@@ -971,6 +1049,56 @@ const Profile: React.FC = () => {
 
               <IonCard className="bg-white dark:bg-gray-800 mb-4">
                 <IonCardContent className="p-4">
+                  {/* Avatar Upload */}
+                  <div className="mb-6">
+                    <IonLabel className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Profile Photo
+                    </IonLabel>
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        {(avatarPreview || profileUser?.avatar_url) ? (
+                          <img
+                            src={avatarPreview || profileUser?.avatar_url}
+                            alt="Avatar preview"
+                            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+                          />
+                        ) : (
+                          <div className={`w-20 h-20 bg-gradient-to-br ${getAvatarGradient(profileUser?.id || '')} rounded-full flex items-center justify-center text-white text-2xl font-bold border-2 border-gray-200 dark:border-gray-700`}>
+                            {profileUser?.display_name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        {isUploadingAvatar && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                            <IonSpinner name="crescent" color="light" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/heic,image/heif"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                          id="avatar-upload"
+                          disabled={isUploadingAvatar}
+                        />
+                        <label
+                          htmlFor="avatar-upload"
+                          className={`inline-block px-4 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors ${
+                            isUploadingAvatar
+                              ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
+                              : 'bg-primary-600 text-white hover:bg-primary-700'
+                          }`}
+                        >
+                          {isUploadingAvatar ? 'Uploading...' : 'Change Photo'}
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          JPEG, PNG, GIF, WebP, HEIC (max 10MB)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <IonItem className="rounded-lg mb-4" lines="none">
                     <IonLabel position="stacked">Display Name</IonLabel>
                     <IonInput
